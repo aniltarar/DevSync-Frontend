@@ -4,6 +4,7 @@ const authRoutes = [
   {
     path: "/auth",
     component: AuthLayout,
+    meta: { guestOnly: true },
     children: [
       {
         path: "login",

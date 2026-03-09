@@ -4,6 +4,7 @@ const userRoutes = [
   {
     path: "",
     component: UserLayout,
+    meta: { requiresAuth: true, role: "user" },
     children: [
       {
         path: "",
