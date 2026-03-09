@@ -18,13 +18,13 @@ function processQueue(error) {
   failedQueue = [];
 }
 
-// Response interceptor
+// Response interceptor — 401/403'te token-refresh, cookie otomatik gönderilir
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -37,7 +37,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post('/token-refresh');
+        await api.post('/auth/token-refresh');
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {

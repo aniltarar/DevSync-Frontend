@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <p class="text-caption mt-10 opacity-60">
+      <p class="text-caption mt-10">
         Zaten hesabınız var mı?
         <router-link to="/auth/login" class="text-white font-weight-bold"
           >Giriş Yap</router-link

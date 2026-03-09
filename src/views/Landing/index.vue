@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Header -->
-    <v-app-bar flat border="bottom" height="64">
+    <v-app-bar  border="bottom" height="64">
       <v-icon size="28" color="primary" class="ml-4">mdi-code-tags</v-icon>
       <span class="text-h6 font-weight-bold ml-2">DevSync</span>
       <v-spacer />

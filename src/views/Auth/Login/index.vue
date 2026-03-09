@@ -26,7 +26,7 @@
           <span class="text-body-1">Binlerce geliştirici ile bağlantı</span>
         </div>
       </div>
-      <p class="text-caption mt-10 opacity-60">
+      <p class="text-caption mt-10 ">
         Hesabınız yok mu?
         <router-link to="/auth/register" class="text-white font-weight-bold"
           >Kayıt Ol</router-link
