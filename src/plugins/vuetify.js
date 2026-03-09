@@ -13,44 +13,44 @@ export default createVuetify({
     aliases,
     sets: { mdi },
   },
-  theme: {
-    defaultTheme: "dark",
+ theme: {
+    defaultTheme: localStorage.getItem("theme") || "dark",
     themes: {
       light: {
         dark: false,
         colors: {
-          primary: "#6C63FF",
-          secondary: "#10B981",
-          accent: "#43C6AC",
-          background: "#F5F5F5",
-          backgroundOverlay: "#E0E0E0",
-          surface: "#FFFFFF",
-          error: "#FF5252",
-          warning: "#FFC107",
-          info: "#2196F3",
-          success: "#4CAF50",
+          primary: "#4F46E5",        // Modern Indigo (Profesyonel ve güven veren)
+          secondary: "#0EA5E9",      // Sky Blue (Yazılım dünyasında çok popüler)
+          accent: "#8B5CF6",         // Soft Violet (Vurgular için ideal)
+          background: "#F8FAFC",     // Kirli Beyaz (Gözü yormayan açık gri/mavi)
+          backgroundOverlay: "#F1F5F9",
+          surface: "#FFFFFF",        // Saf Beyaz (Kartlar için)
+          error: "#EF4444",
+          warning: "#F59E0B",
+          info: "#3B82F6",
+          success: "#10B981",
         },
         variables: {
-          "auth-panel-bg": "linear-gradient(135deg, #6C63FF 0%, #10B981 100%)",
+          "auth-panel-bg": "linear-gradient(135deg, #4F46E5 0%, #0EA5E9 100%)",
         },
       },
       dark: {
         dark: true,
         colors: {
-          primary: "#7C73FF",
-          secondary: "#10B981",
-          accent: "#43C6AC",
-          background: "#121212",
-          backgroundOverlay: "#1E1E1E",
-          surface: "#1E1E1E",
-          error: "#FF5252",
-          warning: "#FFC107",
-          info: "#2196F3",
-          success: "#4CAF50",
+          primary: "#818CF8",        // Daha yumuşak Indigo (Koyu modda parlamaz)
+          secondary: "#38BDF8",      // Parlak Sky Blue (Okunabilirliği yüksek)
+          accent: "#A78BFA",         // Lavanta (Kod editörü teması havası verir)
+          background: "#0F172A",     // Deep Navy (Yazılımcıların en sevdiği arka plan rengi)
+          backgroundOverlay: "#1E293B",
+          surface: "#1E293B",        // Slate Blue (Kartlar ve yüzeyler için)
+          error: "#F87171",
+          warning: "#FBBF24",
+          info: "#60A5FA",
+          success: "#34D399",
         },
         variables: {
-          "auth-panel-bg": "linear-gradient(135deg, #7C73FF 0%, #10B981 100%)",
-        }, 
+          "auth-panel-bg": "linear-gradient(135deg, #4F46E5 0%, #0EA5E9 100%)",
+        },
       },
     },
   },
