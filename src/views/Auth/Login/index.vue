@@ -79,9 +79,10 @@
             :loading="loading"
             color="primary"
             :disabled="!valid || loading"
-            class="mt-4"
+            class="mt-4 "
             block
             type="submit"
+            style="color:white"
             >Giriş Yap</v-btn
           >
         </v-form>

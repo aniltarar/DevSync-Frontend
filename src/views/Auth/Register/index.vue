@@ -158,6 +158,7 @@
           <v-btn
             type="submit"
             color="primary"
+            style="color: white;"
             block
             size="large"
             rounded="lg"

@@ -20,6 +20,12 @@ const userRoutes = [
         component: () => import("@/views/User/Projects/index.vue"),
       },
       {
+        path: "projects/:projectId",
+        name: "ProjectDetail",
+        meta: childMeta,
+        component: () => import("@/views/User/Projects/Detail/index.vue"),
+      },
+      {
         path: "messages",
         name: "Messages",
         meta: childMeta,

@@ -1,5 +1,5 @@
 <template>
-  <v-card rounded="lg" border flat class="h-100 d-flex flex-column">
+  <v-card rounded="lg" border flat class="h-100 d-flex flex-column" :to="`/projects/${project._id}`" style="cursor: pointer;">
     <!-- Header -->
     <v-card-item>
       <template #prepend>
@@ -28,7 +28,7 @@
 
       <template #append>
         <v-chip :color="statusColor" size="x-small" variant="tonal">
-          {{ statusLabel }}
+           {{ statusLabel }}
         </v-chip>
       </template>
     </v-card-item>
@@ -41,10 +41,10 @@
     <!-- Chips: category & type -->
     <v-card-text class="pt-0 d-flex flex-wrap ga-1">
       <v-chip size="x-small" variant="tonal" color="primary" prepend-icon="mdi-tag-outline">
-        {{ categoryLabel }}
+          {{ categoryLabel }}
       </v-chip>
       <v-chip size="x-small" variant="tonal" color="secondary" prepend-icon="mdi-account-group-outline">
-        {{ project.projectType === 'team' ? 'Takım' : 'Solo' }}
+          {{ project.projectType === 'team' ? 'Takım' : 'Solo' }}
       </v-chip>
     </v-card-text>
 
@@ -52,20 +52,37 @@
 
     <!-- Slots özeti -->
     <v-card-text class="py-3">
-      <div class="text-caption text-medium-emphasis mb-2">Açık Pozisyonlar</div>
-      <div class="d-flex flex-wrap ga-1">
-        <v-chip
-          v-for="slot in openSlots"
+      <div class="d-flex align-center justify-space-between mb-2">
+        <span class="text-caption text-medium-emphasis">Pozisyonlar</span>
+        <span class="text-caption font-weight-medium">
+          {{ totalFilled }}/{{ totalQuota }} dolu
+        </span>
+      </div>
+      <div class="d-flex flex-column ga-1">
+        <div
+          v-for="slot in project.slots"
           :key="slot._id"
-          size="x-small"
-          variant="outlined"
-          color="success"
-          prepend-icon="mdi-account-plus-outline"
+          class="d-flex align-center justify-space-between"
         >
-          {{ slot.roleName }}
-        </v-chip>
-        <span v-if="openSlots.length === 0" class="text-caption text-disabled">
-          Tüm pozisyonlar dolu
+          <div class="d-flex align-center ga-1">
+            <v-icon
+              :color="slot.status === 'open' ? 'success' : 'medium-emphasis'"
+              size="12"
+            >
+              {{ slot.status === 'open' ? 'mdi-account-plus-outline' : 'mdi-account-check-outline' }}
+            </v-icon>
+            <span class="text-caption">{{ slot.roleName }}</span>
+          </div>
+          <v-chip
+            :color="slot.status === 'open' ? 'success' : 'default'"
+            size="large"
+            variant="tonal"
+          >
+            {{ slot.filledBy.length }}/{{ slot.quota }}
+          </v-chip>
+        </div>
+        <span v-if="project.slots.length === 0" class="text-caption text-disabled">
+          Slot tanımlanmamış
         </span>
       </div>
     </v-card-text>
@@ -82,7 +99,7 @@
         color="primary"
         variant="tonal"
         rounded="lg"
-        :to="`/projects/${project._id}`"
+        append-icon="mdi-arrow-right"
       >
         İncele
       </v-btn>
@@ -100,17 +117,21 @@ const props = defineProps({
   },
 });
 
-const openSlots = computed(() =>
-  props.project.slots.filter((s) => s.status === 'open')
+const totalQuota = computed(() =>
+  props.project.slots.reduce((sum, s) => sum + s.quota, 0)
+);
+
+const totalFilled = computed(() =>
+  props.project.slots.reduce((sum, s) => sum + s.filledBy.length, 0)
 );
 
 const statusColor = computed(() => {
-  const map = { draft: 'warning', active: 'success', closed: 'error', archived: 'default' };
+  const map = { draft: 'warning', pending: 'info', active: 'success', closed: 'error', rejected: 'error' };
   return map[props.project.status] ?? 'default';
 });
 
 const statusLabel = computed(() => {
-  const map = { draft: 'Taslak', active: 'Aktif', closed: 'Kapalı', archived: 'Arşiv' };
+  const map = { draft: 'Taslak', pending: 'Beklemede', active: 'Aktif', closed: 'Kapalı', rejected: 'Reddedildi' };
   return map[props.project.status] ?? props.project.status;
 });
 
