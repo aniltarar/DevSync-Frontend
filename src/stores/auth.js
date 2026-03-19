@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import api from "@/api";
 import router from "@/router";
 import { useAppStore } from "@/stores/app";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -11,6 +12,7 @@ export const useAuthStore = defineStore("auth", {
   }),
   getters: {
     isAuthenticated: (state) => !!state.user,
+    avatarUrl: (state) => getMediaUrl(state.user?.profile?.avatarUrl),
   },
   actions: {
     async register(userData) {
@@ -25,7 +27,8 @@ export const useAuthStore = defineStore("auth", {
         router.push("/auth/login");
       } catch (error) {
         this.status = "error";
-        this.message = error.response?.data?.message || "Kayıt işlemi başarısız.";
+        this.message =
+          error.response?.data?.message || "Kayıt işlemi başarısız.";
         appStore.error(this.message);
       }
     },
@@ -46,7 +49,8 @@ export const useAuthStore = defineStore("auth", {
         router.push("/feed");
       } catch (error) {
         this.status = "error";
-        this.message = error.response?.data?.message || "Giriş işlemi başarısız.";
+        this.message =
+          error.response?.data?.message || "Giriş işlemi başarısız.";
         appStore.error(this.message);
       }
     },
@@ -57,6 +61,22 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem("user");
       appStore.info("Çıkış yapıldı.");
       router.push("/");
+    },
+    async updateProfile(data) {
+      const appStore = useAppStore();
+      this.status = "loading";
+      try {
+        const response = await api.put("/auth/profile", data);
+        this.user = response.data.user;
+        localStorage.setItem("user", JSON.stringify(this.user));
+        this.status = "success";
+        appStore.success(response.data.message || "Profil güncellendi.");
+        return true;
+      } catch (error) {
+        this.status = "error";
+        appStore.error(error.response?.data?.message || "Profil güncellenemedi.");
+        return false;
+      }
     },
   },
 });

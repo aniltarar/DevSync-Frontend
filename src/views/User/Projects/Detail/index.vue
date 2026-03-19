@@ -225,7 +225,7 @@
 <script setup>
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useProjectStore } from "@/stores/projectStore";
+import { useProjectStore } from "@/stores/project";
 
 const route = useRoute();
 const projectStore = useProjectStore();

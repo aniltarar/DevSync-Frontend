@@ -165,7 +165,7 @@
 <script setup>
 import { reactive, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useProjectStore } from "@/stores/projectStore";
+import { useProjectStore } from "@/stores/project";
 import { buildQuery } from "@/utils/buildQuery";
 import ProjectCard from "./Components/ProjectCard.vue";
 

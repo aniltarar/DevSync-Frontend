@@ -73,7 +73,7 @@
           prepend-icon="mdi-account-circle-outline"
           title="Profil"
           value="profile"
-          :to="'/profile'"
+          :to="'/my-profile'"
           rounded="lg"
         />
         <v-list-item

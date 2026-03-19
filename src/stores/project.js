@@ -25,6 +25,20 @@ export const useProjectStore = defineStore("project", {
         appStore.error(this.message);
       }
     },
+    async fetchMyProjects(){
+      const appStore = useAppStore();
+      this.status = "loading";
+      this.message = "";
+      try {
+        const response = await api.get("/projects/my-projects");
+        this.projects = response.data.data;
+        this.status = "success";
+      } catch (error) {
+        this.status = "error";
+        this.message = error.response?.data?.message || "Projeler yüklenemedi.";
+        appStore.error(this.message);
+      }
+    },
     async fetchProjectById(id) {
       const appStore = useAppStore();
       this.status = "loading";

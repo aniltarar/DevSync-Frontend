@@ -44,10 +44,10 @@ const userRoutes = [
         component: () => import("@/views/User/Applications/index.vue"),
       },
       {
-        path: "profile",
+        path: "my-profile",
         name: "Profile",
         meta: childMeta,
-        component: () => import("@/views/User/Profile/index.vue"),
+        component: () => import("@/views/User/Profiles/My-Profile/index.vue"),
       },
       {
         path: "settings",
