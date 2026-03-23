@@ -1,0 +1,4 @@
+/* Force white text on primary-colored flat buttons in light mode */
+.v-theme--light .v-btn.bg-primary {
+  color: #ffffff !important;
+}

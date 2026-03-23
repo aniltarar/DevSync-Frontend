@@ -10,14 +10,19 @@
     <v-tabs-window v-model="activeTab">
       <!-- Posts Tab -->
       <v-tabs-window-item value="posts">
-        <v-card-text>
+        <v-card-text class="d-flex flex-column ga-3">
           <div v-if="postStore.status === 'loading'" class="text-center py-10">
             <v-progress-circular indeterminate color="primary" />
           </div>
 
-          <div v-else-if="postStore.posts.length === 0" class="text-center py-10">
+          <div
+            v-else-if="postStore.posts.length === 0"
+            class="text-center py-10"
+          >
             <v-icon size="48" color="medium-emphasis">mdi-post-outline</v-icon>
-            <p class="text-body-2 text-medium-emphasis mt-3">Henüz gönderi yok.</p>
+            <p class="text-body-2 text-medium-emphasis mt-3">
+              Henüz gönderi yok.
+            </p>
           </div>
 
           <template v-else>
@@ -43,13 +48,23 @@
       <!-- Projects Tab -->
       <v-tabs-window-item value="projects">
         <v-card-text>
-          <div v-if="projectStore.status === 'loading'" class="text-center py-10">
+          <div
+            v-if="projectStore.status === 'loading'"
+            class="text-center py-10"
+          >
             <v-progress-circular indeterminate color="primary" />
           </div>
 
-          <div v-else-if="projectStore.projects.length === 0" class="text-center py-10">
-            <v-icon size="48" color="medium-emphasis">mdi-folder-open-outline</v-icon>
-            <p class="text-body-2 text-medium-emphasis mt-3">Henüz proje yok.</p>
+          <div
+            v-else-if="projectStore.projects.length === 0"
+            class="text-center py-10"
+          >
+            <v-icon size="48" color="medium-emphasis"
+              >mdi-folder-open-outline</v-icon
+            >
+            <p class="text-body-2 text-medium-emphasis mt-3">
+              Henüz proje yok.
+            </p>
           </div>
 
           <v-row v-else>
@@ -69,18 +84,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
-import { usePostStore } from '@/stores/post';
-import { useProjectStore } from '@/stores/project';
-import { useAuthStore } from '@/stores/auth';
-import PostCard from './PostCard.vue';
-import ProjectCard from './ProjectCard.vue';
+import { onMounted, ref, watch } from "vue";
+import { usePostStore } from "@/stores/post";
+import { useProjectStore } from "@/stores/project";
+import { useAuthStore } from "@/stores/auth";
+import PostCard from "@/components/PostCard.vue";
+import ProjectCard from "./ProjectCard.vue";
 
 const postStore = usePostStore();
 const projectStore = useProjectStore();
 const authStore = useAuthStore();
 
-const activeTab = ref('posts');
+const activeTab = ref("posts");
 const currentPage = ref(1);
 let projectsLoaded = false;
 
@@ -95,11 +110,10 @@ function loadProjects() {
 }
 
 watch(activeTab, (tab) => {
-  if (tab === 'projects') loadProjects();
+  if (tab === "projects") loadProjects();
 });
 
 onMounted(() => {
   loadPosts();
-})
-
+});
 </script>

@@ -2,18 +2,36 @@
   <v-card rounded="xl" elevation="0"  border>
     <v-card-item>
       <template #prepend>
-        <v-avatar
-          size="80"
-          color="primary"
-          variant="tonal"
-          rounded="circle"
-          class="border-lg border-opacity-100 border-surface"
+        <div
+          class="position-relative d-inline-flex rounded-circle cursor-pointer"
+          @click="fileInput.click()"
         >
-          <v-img v-if="user.profile.avatarUrl" :src="avatarUrl" />
-          <span v-else class="text-h5 font-weight-bold text-primary">
-            {{ initials }}
-          </span>
-        </v-avatar>
+          <v-avatar
+            size="80"
+            color="primary"
+            variant="tonal"
+            rounded="circle"
+            class="border-lg border-opacity-100 border-surface"
+          >
+            <v-img v-if="user.profile.avatarUrl" :src="avatarUrl" />
+            <span v-else class="text-h5 font-weight-bold text-primary">
+              {{ initials }}
+            </span>
+          </v-avatar>
+          <div
+            class="avatar-overlay position-absolute rounded-circle d-flex align-center justify-center"
+            style="inset: 0; background: rgba(0,0,0,0.45); opacity: 0; transition: opacity 0.2s;"
+          >
+            <v-icon color="white" size="22">mdi-camera-outline</v-icon>
+          </div>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="d-none"
+            @change="onAvatarChange"
+          />
+        </div>
       </template>
 
       <template #append>
@@ -178,6 +196,14 @@ const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 const avatarUrl = computed(() => authStore.avatarUrl);
 const editDialog = ref(false);
+const fileInput = ref(null);
+
+const onAvatarChange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  await authStore.uploadAvatar(file);
+  event.target.value = "";
+};
 
 const initials = computed(() => {
   const name = user.value.profile.name?.[0] ?? "";
@@ -190,4 +216,13 @@ const initials = computed(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.avatar-overlay {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cursor-pointer:hover .avatar-overlay {
+  opacity: 1 !important;
+}
+</style>

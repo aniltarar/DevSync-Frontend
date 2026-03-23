@@ -78,5 +78,25 @@ export const useAuthStore = defineStore("auth", {
         return false;
       }
     },
+    async uploadAvatar(file) {
+      const appStore = useAppStore();
+      this.status = "loading";
+      try {
+        const formData = new FormData();
+        formData.append("avatar", file);
+        const response = await api.post("/auth/avatar", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        this.user = { ...this.user, profile: response.data.profile };
+        localStorage.setItem("user", JSON.stringify(this.user));
+        this.status = "success";
+        appStore.success(response.data.message || "Avatar güncellendi.");
+        return true;
+      } catch (error) {
+        this.status = "error";
+        appStore.error(error.response?.data?.message || "Avatar yüklenemedi.");
+        return false;
+      }
+    },
   },
 });

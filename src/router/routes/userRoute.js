@@ -14,6 +14,12 @@ const userRoutes = [
         component: () => import("@/views/User/Home/index.vue"),
       },
       {
+        path: "posts/:postId",
+        name: "PostDetail",
+        meta: childMeta,
+        component: () => import("@/views/User/Home/Detail/index.vue"),
+      },
+      {
         path: "projects",
         name: "Projects",
         meta: childMeta,

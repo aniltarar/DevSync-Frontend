@@ -1,7 +1,7 @@
 <template>
   <v-layout style="height: 100vh; overflow: hidden;">
     <Sidebar />
-    <v-main style="overflow-y: auto; --v-layout-left: 64px !important;">
+    <v-main style="overflow-y: auto; padding-left: 64px;">
       <v-container fluid class="pa-6">
         <v-row justify="center">
           <v-col

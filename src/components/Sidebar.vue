@@ -2,6 +2,7 @@
   <v-navigation-drawer
     :rail="isRail"
     permanent
+    absolute
     :rail-width="64"
     :width="220"
     @mouseenter="isRail = false"
