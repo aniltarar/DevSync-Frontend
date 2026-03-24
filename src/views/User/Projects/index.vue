@@ -8,7 +8,7 @@
       </p>
     </div>
     <v-spacer />
-    <v-btn variant="flat" color="primary" rounded="lg" style="color: white">
+    <v-btn variant="flat" color="primary" rounded="lg" style="color: white" :to="{ name: 'CreateProject' }">
       <v-icon left>mdi-plus</v-icon>
       Proje Oluştur
     </v-btn>
@@ -192,7 +192,7 @@ const categoryOptions = [
 
 const projectTypeOptions = [
   { title: "Takım", value: "team" },
-  { title: "Solo", value: "solo" },
+  { title: "Bireysel", value: "personal" },
   { title: "Açık Kaynak", value: "open-source" },
   { title: "Freelance", value: "freelance" },
 ];

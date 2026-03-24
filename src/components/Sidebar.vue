@@ -45,6 +45,13 @@
         rounded="lg"
       />
       <v-list-item
+        prepend-icon="mdi-folder-account-outline"
+        title="Projelerim"
+        value="my-projects"
+        :to="'/my-projects'"
+        rounded="lg"
+      />
+      <v-list-item
         prepend-icon="mdi-message-outline"
         title="Mesajlar"
         value="messages"

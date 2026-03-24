@@ -26,6 +26,18 @@ const userRoutes = [
         component: () => import("@/views/User/Projects/index.vue"),
       },
       {
+        path: "projects/create",
+        name: "CreateProject",
+        meta: childMeta,
+        component: () => import("@/views/User/Projects/Create/index.vue"),
+      },
+      {
+        path: "my-projects",
+        name: "MyProjects",
+        meta: childMeta,
+        component: () => import("@/views/User/Projects/MyProjects/index.vue"),
+      },
+      {
         path: "projects/:projectId",
         name: "ProjectDetail",
         meta: childMeta,
@@ -48,6 +60,15 @@ const userRoutes = [
         name: "Applications",
         meta: childMeta,
         component: () => import("@/views/User/Applications/index.vue"),
+      },
+      {
+        path: "projects/:projectId/applications",
+        name: "ProjectApplications",
+        meta: childMeta,
+        component: () =>
+          import(
+            "@/views/User/Applications/ProjectApplications/index.vue"
+          ),
       },
       {
         path: "my-profile",

@@ -1,5 +1,5 @@
 <template>
-  <v-card rounded="xl" elevation="0"  border>
+  <v-card rounded="xl" elevation="0" border>
     <v-card-item>
       <template #prepend>
         <div
@@ -22,7 +22,12 @@
           <div
             v-if="isOwner"
             class="avatar-overlay position-absolute rounded-circle d-flex align-center justify-center"
-            style="inset: 0; background: rgba(0,0,0,0.45); opacity: 0; transition: opacity 0.2s;"
+            style="
+              inset: 0;
+              background: rgba(0, 0, 0, 0.45);
+              opacity: 0;
+              transition: opacity 0.2s;
+            "
           >
             <v-icon color="white" size="22">mdi-camera-outline</v-icon>
           </div>
@@ -37,21 +42,89 @@
         </div>
       </template>
 
-      <template v-if="isOwner" #append>
-        <v-btn
-          variant="outlined"
-          size="small"
-          rounded="lg"
-          prepend-icon="mdi-pencil-outline"
-          @click="editDialog = true"
-        >
-          Düzenle
-        </v-btn>
+      <template #append>
+        <div class="d-flex ga-2">
+          <v-btn
+            v-if="isOwner"
+            variant="outlined"
+            size="small"
+            rounded="lg"
+            prepend-icon="mdi-pencil-outline"
+            @click="editDialog = true"
+          >
+            Düzenle
+          </v-btn>
+          <v-btn
+            v-if="!isOwner && !isBlockedBy"
+            :color="isBlocked ? 'error' : 'default'"
+            :variant="isBlocked ? 'tonal' : 'outlined'"
+            :prepend-icon="
+              isBlocked ? 'mdi-account-cancel' : 'mdi-account-cancel-outline'
+            "
+            size="small"
+            rounded="lg"
+            @click="blockDialog = true"
+          >
+            {{ isBlocked ? "Engellendi" : "Engelle" }}
+          </v-btn>
+        </div>
       </template>
     </v-card-item>
 
+    <!-- Engellendi bannerı (sen engelledin) -->
+    <template v-if="isBlocked">
+      <v-divider />
+      <div
+        class="d-flex flex-column align-center justify-center py-10 px-4 ga-4"
+      >
+        <v-avatar size="72" color="error" variant="tonal" rounded="circle">
+          <v-icon size="36" color="error">mdi-account-cancel</v-icon>
+        </v-avatar>
+        <div class="text-center">
+          <p class="text-body-1 font-weight-bold mb-1">
+            Bu kullanıcıyı engellediniz
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            {{ user.profile.name }} {{ user.profile.surname }} adlı kullanıcının
+            profilini ve gönderilerini göremezsiniz.
+          </p>
+        </div>
+        <v-btn
+          color="error"
+          variant="outlined"
+          rounded="lg"
+          prepend-icon="mdi-account-check-outline"
+          :loading="blockLoading"
+          @click="blockDialog = true"
+        >
+          Engeli Kaldır
+        </v-btn>
+      </div>
+    </template>
+
+    <!-- Engellendi bannerı (seni engelledi) -->
+    <template v-if="isBlockedBy">
+      <v-divider />
+      <div
+        class="d-flex flex-column align-center justify-center py-10 px-4 ga-4"
+      >
+        <v-avatar size="72" color="warning" variant="tonal" rounded="circle">
+          <v-icon size="36" color="warning">mdi-account-lock</v-icon>
+        </v-avatar>
+        <div class="text-center">
+          <p class="text-body-1 font-weight-bold mb-1">
+            Bu kullanıcı sizi engelledi
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            {{ user.profile.name }} {{ user.profile.surname }} adlı kullanıcının
+            profilini görüntleştiremezsiniz.
+          </p>
+        </div>
+      </div>
+    </template>
+
     <!-- Name & Username -->
-    <v-card-item class="pt-1 pb-0">
+    <v-card-item v-if="!isBlocked && !isBlockedBy" class="pt-1 pb-0">
       <v-card-title class="text-h6 font-weight-bold pa-0">
         {{ user.profile.name }} {{ user.profile.surname }}
       </v-card-title>
@@ -71,7 +144,7 @@
       </v-card-subtitle>
     </v-card-item>
 
-    <v-card-text class="px-4 pb-4 pt-2">
+    <v-card-text v-if="!isBlocked && !isBlockedBy" class="px-4 pb-4 pt-2">
       <!-- Bio -->
       <div v-if="user.profile.bio" class="mb-4">
         <p class="text-body-2 text-medium-emphasis" style="line-height: 1.6">
@@ -83,11 +156,15 @@
       <div class="d-flex flex-wrap ga-3 mb-4">
         <div class="d-flex align-center ga-1">
           <v-icon size="16" color="primary">mdi-email-outline</v-icon>
-          <span class="text-caption text-medium-emphasis">{{ user.email || 'E-posta eklenmedi' }}</span>
+          <span class="text-caption text-medium-emphasis">{{
+            user.email || "E-posta eklenmedi"
+          }}</span>
         </div>
         <div v-if="user.profile.location" class="d-flex align-center ga-1">
           <v-icon size="16" color="primary">mdi-map-marker-outline</v-icon>
-          <span class="text-caption text-medium-emphasis">{{ user.profile.location }}</span>
+          <span class="text-caption text-medium-emphasis">{{
+            user.profile.location
+          }}</span>
         </div>
       </div>
 
@@ -95,7 +172,9 @@
 
       <!-- Unvanlar -->
       <div class="mb-4">
-        <p class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2">
+        <p
+          class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2"
+        >
           Unvanlar
         </p>
         <div class="d-flex ga-2 flex-wrap">
@@ -118,7 +197,9 @@
 
       <!-- Yetenekler -->
       <div class="mb-4">
-        <p class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2">
+        <p
+          class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2"
+        >
           Yetenekler
         </p>
         <div class="d-flex ga-2 flex-wrap">
@@ -140,9 +221,15 @@
 
       <!-- Sosyal Bağlantılar -->
       <div
-        v-if="user.socialLinks.github || user.socialLinks.linkedin || user.socialLinks.portfolio"
+        v-if="
+          user.socialLinks.github ||
+          user.socialLinks.linkedin ||
+          user.socialLinks.portfolio
+        "
       >
-        <p class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2">
+        <p
+          class="text-caption text-medium-emphasis font-weight-medium text-uppercase mb-2"
+        >
           Sosyal Bağlantılar
         </p>
         <div class="d-flex ga-2 flex-wrap">
@@ -187,6 +274,40 @@
   </v-card>
 
   <UpdateProfileDialog v-if="isOwner" v-model="editDialog" />
+
+  <!-- Engelleme onay dialogu -->
+  <v-dialog v-model="blockDialog" max-width="380">
+    <v-card rounded="xl">
+      <v-card-title class="text-h6 font-weight-bold pa-4">
+        {{ isBlocked ? "Engeli Kaldır" : "Kullanıcıyı Engelle" }}
+      </v-card-title>
+      <v-card-text class="px-4 pb-2">
+        <span v-if="isBlocked">
+          <strong>{{ user.profile.name }} {{ user.profile.surname }}</strong>
+          adlı kullanıcının engelini kaldırmak istediğine emin misin?
+        </span>
+        <span v-else>
+          <strong>{{ user.profile.name }} {{ user.profile.surname }}</strong>
+          adlı kullanıcıyı engellemek istediğine emin misin?
+        </span>
+      </v-card-text>
+      <v-card-actions class="pa-4 pt-2">
+        <v-spacer />
+        <v-btn variant="text" rounded="lg" @click="blockDialog = false"
+          >İptal</v-btn
+        >
+        <v-btn
+          :class="isBlocked ? 'bg-warning' : 'bg-error'"
+          variant="flat"
+          rounded="lg"
+          :loading="blockLoading"
+          @click="handleBlock"
+        >
+          {{ isBlocked ? "Engeli Kaldır" : "Engelle" }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -197,6 +318,8 @@ import UpdateProfileDialog from "./UpdateProfileDialog.vue";
 
 const props = defineProps({
   user: { type: Object, required: true },
+  isBlocked: { type: Boolean, default: false },
+  isBlockedBy: { type: Boolean, default: false },
 });
 
 const authStore = useAuthStore();
@@ -204,6 +327,15 @@ const isOwner = computed(() => authStore.user?._id === props.user._id);
 const avatarUrl = computed(() => getMediaUrl(props.user.profile?.avatarUrl));
 const editDialog = ref(false);
 const fileInput = ref(null);
+const blockDialog = ref(false);
+const blockLoading = ref(false);
+
+const handleBlock = async () => {
+  blockLoading.value = true;
+  await authStore.blockUser(props.user._id);
+  blockLoading.value = false;
+  blockDialog.value = false;
+};
 
 const onAvatarChange = async (event) => {
   const file = event.target.files[0];

@@ -1,15 +1,18 @@
 <template>
   <div>
-    <!-- Başlık -->
-    <div class="mb-4">
-      <h1 class="text-h5 font-weight-bold">Başvurularım</h1>
-      <p class="text-body-2 text-medium-emphasis mt-1">
-        Projelere yaptığınız başvuruları takip edin
-      </p>
-    </div>
+    <!-- Geri butonu -->
+    <v-btn
+      variant="text"
+      prepend-icon="mdi-arrow-left"
+      class="mb-4 pa-2"
+      :to="{ name: 'ProjectDetail', params: { projectId: route.params.projectId } }"
+    >
+      Projeye Dön
+    </v-btn>
 
     <!-- Loading -->
     <template v-if="applicationStore.status === 'loading'">
+      <v-skeleton-loader type="heading" rounded="lg" class="mb-4" />
       <v-skeleton-loader
         v-for="i in 3"
         :key="i"
@@ -30,7 +33,7 @@
         class="mt-4"
         color="primary"
         variant="tonal"
-        @click="applicationStore.getMyApplications()"
+        @click="loadApplications"
       >
         Tekrar Dene
       </v-btn>
@@ -38,6 +41,13 @@
 
     <!-- İçerik -->
     <template v-else>
+      <div class="mb-4">
+        <h1 class="text-h5 font-weight-bold">Proje Başvuruları</h1>
+        <p class="text-body-2 text-medium-emphasis mt-1">
+          Projenize yapılan başvuruları yönetin
+        </p>
+      </div>
+
       <!-- Filtre Chips -->
       <div class="d-flex flex-wrap ga-2 mb-4">
         <v-chip
@@ -61,7 +71,7 @@
           mdi-clipboard-text-outline
         </v-icon>
         <p class="text-body-1 mt-4 text-medium-emphasis">
-          {{ activeFilter === "all" ? "Henüz başvurunuz yok." : "Bu filtrede başvuru bulunamadı." }}
+          {{ activeFilter === "all" ? "Bu projeye henüz başvuru yapılmamış." : "Bu filtrede başvuru bulunamadı." }}
         </p>
       </div>
 
@@ -71,18 +81,32 @@
           v-for="app in filteredApplications"
           :key="app._id"
           :application="app"
+          show-applicant
           :show-actions="app.status === 'pending'"
         >
           <template #actions>
             <v-btn
-              class="bg-error"
+              color="error"
               variant="tonal"
               size="small"
               rounded="lg"
-              :loading="cancellingId === app._id"
-              @click="cancelApplication(app._id)"
+              :loading="processingId === app._id && processingAction === 'reject'"
+              :disabled="!!processingId"
+              @click="reject(app._id)"
             >
-              Başvuruyu İptal Et
+              Reddet
+            </v-btn>
+            <v-btn
+              color="success"
+              variant="flat"
+              size="small"
+              rounded="lg"
+              style="color: white"
+              :loading="processingId === app._id && processingAction === 'accept'"
+              :disabled="!!processingId"
+              @click="accept(app._id)"
+            >
+              Kabul Et
             </v-btn>
           </template>
         </ApplicationCard>
@@ -93,12 +117,16 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { useApplicationStore } from "@/stores/application";
-import ApplicationCard from "./components/ApplicationCard.vue";
+import ApplicationCard from "../components/ApplicationCard.vue";
 
+const route = useRoute();
 const applicationStore = useApplicationStore();
+
 const activeFilter = ref("all");
-const cancellingId = ref(null);
+const processingId = ref(null);
+const processingAction = ref(null);
 
 const filterOptions = [
   { label: "Tümü", value: "all" },
@@ -109,24 +137,39 @@ const filterOptions = [
 ];
 
 const filteredApplications = computed(() => {
-  if (activeFilter.value === "all") return applicationStore.myApplications;
-  return applicationStore.myApplications.filter(
+  if (activeFilter.value === "all") return applicationStore.applications;
+  return applicationStore.applications.filter(
     (a) => a.status === activeFilter.value,
   );
 });
 
 function countByStatus(status) {
-  return applicationStore.myApplications.filter((a) => a.status === status).length;
+  return applicationStore.applications.filter((a) => a.status === status).length;
 }
 
-async function cancelApplication(applicationId) {
-  cancellingId.value = applicationId;
-  const success = await applicationStore.cancelApplication({ applicationId });
-  cancellingId.value = null;
-  if (success) await applicationStore.getMyApplications();
+function loadApplications() {
+  applicationStore.getApplicationsByProject(route.params.projectId);
+}
+
+async function accept(applicationId) {
+  processingId.value = applicationId;
+  processingAction.value = "accept";
+  await applicationStore.acceptApplication(applicationId);
+  processingId.value = null;
+  processingAction.value = null;
+  loadApplications();
+}
+
+async function reject(applicationId) {
+  processingId.value = applicationId;
+  processingAction.value = "reject";
+  await applicationStore.rejectApplication(applicationId);
+  processingId.value = null;
+  processingAction.value = null;
+  loadApplications();
 }
 
 onMounted(() => {
-  applicationStore.getMyApplications();
+  loadApplications();
 });
 </script>

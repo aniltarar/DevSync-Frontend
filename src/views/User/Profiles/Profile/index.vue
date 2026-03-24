@@ -3,8 +3,12 @@
     <v-progress-circular indeterminate color="primary" />
   </div>
   <div v-else-if="authStore.profileUser" class="d-flex flex-column ga-4">
-    <ProfileCard :user="authStore.profileUser" />
-    <ProfileTabs :user-id="authStore.profileUser._id" />
+    <ProfileCard
+      :user="authStore.profileUser"
+      :is-blocked="authStore.profileIsBlocked"
+      :is-blocked-by="authStore.profileIsBlockedBy"
+    />
+    <ProfileTabs v-if="!authStore.profileIsBlocked && !authStore.profileIsBlockedBy" :user-id="authStore.profileUser._id" />
   </div>
 </template>
 

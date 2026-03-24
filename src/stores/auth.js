@@ -9,6 +9,8 @@ export const useAuthStore = defineStore("auth", {
     status: "idle",
     user: JSON.parse(localStorage.getItem("user")) || null,
     profileUser: null,
+    profileIsBlocked: false,
+    profileIsBlockedBy: false,
     message: "",
   }),
   getters: {
@@ -109,13 +111,28 @@ export const useAuthStore = defineStore("auth", {
       const appStore = useAppStore();
       this.status = "loading";
       this.profileUser = null;
+      this.profileIsBlocked = false;
       try {
         const response = await api.get(`/auth/profile/${userId}`);
         this.profileUser = response.data.user;
+        this.profileIsBlocked = response.data.isBlocked ?? false;
+        this.profileIsBlockedBy = response.data.isBlockedBy ?? false;
         this.status = "success";
       } catch (error) {
         this.status = "error";
         appStore.apiError(error, "Kullanıcı profili yüklenemedi.");
+      }
+    },
+    async blockUser(userId) {
+      const appStore = useAppStore();
+      try {
+        const response = await api.post(`/auth/block/${userId}`);
+        appStore.success(response.data.message || "Kullanıcı engellendi.");
+        this.profileIsBlocked = !this.profileIsBlocked;
+        return response.data;
+      } catch (error) {
+        appStore.apiError(error, "Engelleme işlemi başarısız.");
+        return null;
       }
     },
   },

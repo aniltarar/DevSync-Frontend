@@ -12,18 +12,18 @@
         {{ project.title }}
       </v-card-title>
 
-      <v-card-subtitle class="d-flex align-center ga-1 mt-1">
+      <v-card-subtitle v-if="ownerProfile" class="d-flex align-center ga-1 mt-1">
         <v-avatar
-          :image="project.ownerId.profile.avatarUrl || undefined"
-          :color="!project.ownerId.profile.avatarUrl ? 'secondary' : undefined"
+          :image="ownerProfile.avatarUrl || undefined"
+          :color="!ownerProfile.avatarUrl ? 'secondary' : undefined"
           size="18"
           class="mr-1"
         >
-          <span v-if="!project.ownerId.profile.avatarUrl" class="text-caption">
-            {{ project.ownerId.profile.name?.charAt(0) }}
+          <span v-if="!ownerProfile.avatarUrl" class="text-caption">
+            {{ ownerProfile.name?.charAt(0) }}
           </span>
         </v-avatar>
-        {{ project.ownerId.profile.name }} {{ project.ownerId.profile.surname }}
+        {{ ownerProfile.name }} {{ ownerProfile.surname }}
       </v-card-subtitle>
 
       <template #append>
@@ -116,6 +116,10 @@ const props = defineProps({
     required: true,
   },
 });
+
+const ownerProfile = computed(() =>
+  typeof props.project.ownerId === 'object' ? props.project.ownerId.profile : null
+);
 
 const totalQuota = computed(() =>
   props.project.slots.reduce((sum, s) => sum + s.quota, 0)

@@ -68,9 +68,12 @@
         </v-card-subtitle>
 
         <template #append>
-          <v-chip :color="statusColor" variant="tonal" size="small">
-            {{ statusLabel }}
-          </v-chip>
+          <div class="d-flex align-center ga-2">
+            <v-chip :color="statusColor" variant="tonal">
+              {{ statusLabel }}
+            </v-chip>
+            <EditProjectDialog v-if="isOwner" :project="project" />
+          </div>
         </template>
       </v-card-item>
 
@@ -112,9 +115,12 @@
           Açık Pozisyonlar
         </v-card-title>
         <template #append>
-          <span class="text-caption text-medium-emphasis">
-            {{ totalFilled }}/{{ totalQuota }} dolu
-          </span>
+          <div class="d-flex align-center ga-2">
+            <span class="text-caption text-medium-emphasis">
+              {{ totalFilled }}/{{ totalQuota }} dolu
+            </span>
+            <AddSlotDialog v-if="isOwner" :project-id="project._id" />
+          </div>
         </template>
       </v-card-item>
 
@@ -123,51 +129,63 @@
       <v-card-text class="pa-0">
         <div v-for="(slot, index) in project.slots" :key="slot._id">
           <div class="pa-4">
+            <!-- Slot Header -->
             <div class="d-flex align-center justify-space-between mb-3">
               <div class="d-flex align-center ga-2">
-                <v-icon
-                  :color="
-                    slot.status === 'open' ? 'success' : 'medium-emphasis'
-                  "
-                  size="18"
-                >
-                  {{
-                    slot.status === "open"
-                      ? "mdi-account-plus-outline"
-                      : "mdi-account-check-outline"
-                  }}
-                </v-icon>
-                <span class="text-body-2 font-weight-medium">{{
-                  slot.roleName
-                }}</span>
-              </div>
-              <div class="d-flex align-center ga-2">
-                <v-chip
-                  :color="slot.status === 'open' ? 'success' : 'default'"
-                  size="large"
+                <v-avatar
+                  :color="slot.status === 'open' ? 'success' : 'grey'"
                   variant="tonal"
+                  size="32"
+                  rounded="md"
                 >
-                  {{ slot.filledBy.length }}/{{ slot.quota }} dolu
-                </v-chip>
-                <v-chip
-                  :color="slot.status === 'open' ? 'success' : 'default'"
-                  size="large"
-                  variant="outlined"
-                >
-                  {{ slot.status === "open" ? "Açık" : "Dolu" }}
-                </v-chip>
+                  <v-icon size="16">
+                    {{
+                      slot.status === "open"
+                        ? "mdi-account-plus-outline"
+                        : "mdi-account-check-outline"
+                    }}
+                  </v-icon>
+                </v-avatar>
+                <div>
+                  <span class="text-body-2 font-weight-medium">
+                    {{ slot.roleName }}
+                  </span>
+                  <div class="d-flex align-center ga-2 mt-1">
+                    <v-chip
+                      :color="slot.status === 'open' ? 'success' : 'default'"
+                      size="x-small"
+                      variant="tonal"
+                    >
+                      {{ slot.status === "open" ? "Açık" : "Dolu" }}
+                    </v-chip>
+                    <span class="text-caption text-medium-emphasis">
+                      {{ slot.filledBy.length }}/{{ slot.quota }} dolu
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Owner Actions -->
+              <div v-if="isOwner" class="d-flex align-center ga-1">
+                <EditSlotDialog :project-id="project._id" :slot-data="slot" />
+                <DeleteSlotDialog
+                  :project-id="project._id"
+                  :slot-id="slot._id"
+                  :slot-name="slot.roleName"
+                />
               </div>
             </div>
 
+            <!-- Skills -->
             <div v-if="slot.requiredSkills.length" class="mb-2">
-              <span class="text-caption text-medium-emphasis d-block mb-1"
-                >Gerekli Beceriler</span
-              >
+              <span class="text-caption text-medium-emphasis d-block mb-1">
+                Gerekli Beceriler
+              </span>
               <div class="d-flex flex-wrap ga-1">
                 <v-chip
                   v-for="skill in slot.requiredSkills"
                   :key="skill"
-                  size="large"
+                  size="small"
                   color="primary"
                   variant="tonal"
                 >
@@ -177,14 +195,14 @@
             </div>
 
             <div v-if="slot.optionalSkills.length">
-              <span class="text-caption text-medium-emphasis d-block mb-1"
-                >Tercih Edilen Beceriler</span
-              >
+              <span class="text-caption text-medium-emphasis d-block mb-1">
+                Tercih Edilen Beceriler
+              </span>
               <div class="d-flex flex-wrap ga-1">
                 <v-chip
                   v-for="skill in slot.optionalSkills"
                   :key="skill"
-                  size="large"
+                  size="small"
                   variant="outlined"
                 >
                   {{ skill }}
@@ -196,27 +214,56 @@
         </div>
 
         <div v-if="!project.slots.length" class="pa-6 text-center">
-          <p class="text-caption text-disabled">
-            Bu proje için henüz slot tanımlanmamış.
+          <v-icon size="40" color="medium-emphasis" class="mb-2">
+            mdi-account-group-outline
+          </v-icon>
+          <p class="text-body-2 text-medium-emphasis">
+            Bu proje için henüz pozisyon tanımlanmamış.
           </p>
+          <AddSlotDialog
+            v-if="isOwner"
+            :project-id="project._id"
+            class="mt-3"
+          />
         </div>
       </v-card-text>
 
       <v-divider />
 
-      <v-card-actions class="pa-4">
-        <v-spacer />
-
+      <v-card-actions class="d-flex align-center justify-space-between pa-4 ga-4">
         <v-btn
-          color="primary"
-          variant="flat"
+          v-if="isOwner"
+          variant="tonal"
+          color="secondary"
           rounded="lg"
-          prepend-icon="mdi-send-outline"
-          :disabled="totalFilled >= totalQuota"
-          style="color: white"
+          prepend-icon="mdi-clipboard-list-outline"
+          :to="{
+            name: 'ProjectApplications',
+            params: { projectId: project._id },
+          }"
         >
-          Başvur
+          Başvuruları Gör
+          <v-badge
+            v-if="project.activeApplicationCount"
+            :content="project.activeApplicationCount"
+            color="primary"
+            floating
+            offset-x="-4"
+            offset-y="-4"
+          />
         </v-btn>
+        <DeleteProjectDialog
+          v-if="isOwner"
+          :project-id="project._id"
+          :project-title="project.title"
+        />
+        <v-spacer />
+        <ApplyDialog
+          v-if="!isOwner"
+          :project-id="project._id"
+          :project-title="project.title"
+          :slots="project.slots"
+        />
       </v-card-actions>
     </v-card>
   </template>
@@ -226,15 +273,27 @@
 import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useProjectStore } from "@/stores/project";
+import { useAuthStore } from "@/stores/auth";
+import ApplyDialog from "./components/ApplyDialog.vue";
+import AddSlotDialog from "./components/AddSlotDialog.vue";
+import EditProjectDialog from "./components/EditProjectDialog.vue";
+import EditSlotDialog from "./components/EditSlotDialog.vue";
+import DeleteSlotDialog from "./components/DeleteSlotDialog.vue";
+import DeleteProjectDialog from "./components/DeleteProjectDialog.vue";
 
 const route = useRoute();
 const projectStore = useProjectStore();
+const authStore = useAuthStore();
 
 onMounted(() => {
   projectStore.fetchProjectById(route.params.projectId);
 });
 
 const project = computed(() => projectStore.project);
+
+const isOwner = computed(
+  () => project.value?.ownerId?._id === authStore.user?._id,
+);
 
 const totalQuota = computed(
   () => project.value?.slots.reduce((sum, s) => sum + s.quota, 0) ?? 0,
