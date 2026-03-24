@@ -3,8 +3,9 @@
     <v-card-item>
       <template #prepend>
         <div
-          class="position-relative d-inline-flex rounded-circle cursor-pointer"
-          @click="fileInput.click()"
+          class="position-relative d-inline-flex rounded-circle"
+          :class="{ 'cursor-pointer': isOwner }"
+          @click="isOwner && fileInput.click()"
         >
           <v-avatar
             size="80"
@@ -19,12 +20,14 @@
             </span>
           </v-avatar>
           <div
+            v-if="isOwner"
             class="avatar-overlay position-absolute rounded-circle d-flex align-center justify-center"
             style="inset: 0; background: rgba(0,0,0,0.45); opacity: 0; transition: opacity 0.2s;"
           >
             <v-icon color="white" size="22">mdi-camera-outline</v-icon>
           </div>
           <input
+            v-if="isOwner"
             ref="fileInput"
             type="file"
             accept="image/*"
@@ -34,7 +37,7 @@
         </div>
       </template>
 
-      <template #append>
+      <template v-if="isOwner" #append>
         <v-btn
           variant="outlined"
           size="small"
@@ -183,18 +186,22 @@
     </v-card-text>
   </v-card>
 
-  <UpdateProfileDialog v-model="editDialog" />
+  <UpdateProfileDialog v-if="isOwner" v-model="editDialog" />
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
-import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/stores/auth";
+import { getMediaUrl } from "@/utils/mediaUrl";
 import UpdateProfileDialog from "./UpdateProfileDialog.vue";
 
+const props = defineProps({
+  user: { type: Object, required: true },
+});
+
 const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
-const avatarUrl = computed(() => authStore.avatarUrl);
+const isOwner = computed(() => authStore.user?._id === props.user._id);
+const avatarUrl = computed(() => getMediaUrl(props.user.profile?.avatarUrl));
 const editDialog = ref(false);
 const fileInput = ref(null);
 
@@ -206,11 +213,11 @@ const onAvatarChange = async (event) => {
 };
 
 const initials = computed(() => {
-  const name = user.value.profile.name?.[0] ?? "";
-  const surname = user.value.profile.surname?.[0] ?? "";
+  const name = props.user.profile.name?.[0] ?? "";
+  const surname = props.user.profile.surname?.[0] ?? "";
   return (
     (name + surname).toUpperCase() ||
-    user.value.username?.[0]?.toUpperCase() ||
+    props.user.username?.[0]?.toUpperCase() ||
     "?"
   );
 });

@@ -84,29 +84,38 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { usePostStore } from "@/stores/post";
 import { useProjectStore } from "@/stores/project";
 import { useAuthStore } from "@/stores/auth";
 import PostCard from "@/components/PostCard.vue";
 import ProjectCard from "./ProjectCard.vue";
 
+const props = defineProps({
+  userId: { type: String, required: true },
+});
+
 const postStore = usePostStore();
 const projectStore = useProjectStore();
 const authStore = useAuthStore();
 
+const isOwner = computed(() => authStore.user?._id === props.userId);
 const activeTab = ref("posts");
 const currentPage = ref(1);
 let projectsLoaded = false;
 
 function loadPosts(page = currentPage.value) {
-  postStore.getPostByUserId(authStore.user._id, { page, limit: 5 });
+  postStore.getPostByUserId(props.userId, { page, limit: 5 });
 }
 
 function loadProjects() {
   if (projectsLoaded) return;
   projectsLoaded = true;
-  projectStore.fetchMyProjects();
+  if (isOwner.value) {
+    projectStore.fetchMyProjects();
+  } else {
+    projectStore.fetchProjects({ author: props.userId });
+  }
 }
 
 watch(activeTab, (tab) => {

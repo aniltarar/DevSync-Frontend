@@ -35,7 +35,7 @@ export const usePostStore = defineStore("post",{
             } catch (error) {
                 this.status = "error";
                 this.message = error.response?.data?.message || "Gönderiler yüklenemedi.";
-                appStore.error(this.message);
+                appStore.apiError(error, "Gönderiler yüklenemedi.");
             }
         },
         async getPostById(postId) {
@@ -49,7 +49,7 @@ export const usePostStore = defineStore("post",{
             } catch (error) {
                 this.status = "error";
                 this.message = error.response?.data?.message || "Gönderi yüklenemedi.";
-                appStore.error(this.message);
+                appStore.apiError(error, "Gönderi yüklenemedi.");
             }
         },
         async getPostByUserId(userId, { page = 1, limit = 10 } = {}){
@@ -67,7 +67,7 @@ export const usePostStore = defineStore("post",{
             } catch (error) {
                 this.status = "error";
                 this.message = error.response?.data?.message || "Gönderiler yüklenemedi.";
-                appStore.error(this.message);
+                appStore.apiError(error, "Gönderiler yüklenemedi.");
             }
         },
         async createPost({ content, tags, images }) {
@@ -93,7 +93,7 @@ export const usePostStore = defineStore("post",{
             } catch (error) {
                 this.status = "error";
                 this.message = error.response?.data?.message || "Gönderi oluşturulamadı.";
-                appStore.error(this.message);
+                appStore.apiError(error, "Gönderi oluşturulamadı.");
                 return false;
             }
         },
@@ -124,7 +124,7 @@ export const usePostStore = defineStore("post",{
                 return true;
             } catch (error) {
                 this.status = "error";
-                appStore.error(error.response?.data?.message || "Gönderi güncellenemedi.");
+                appStore.apiError(error, "Gönderi güncellenemedi.");
                 return false;
             }
         },
@@ -142,7 +142,7 @@ export const usePostStore = defineStore("post",{
                 return true;
             } catch (error) {
                 this.status = "error";
-                appStore.error(error.response?.data?.message || "Gönderi silinemedi.");
+                appStore.apiError(error, "Gönderi silinemedi.");
                 return false;
             }
         },
@@ -176,7 +176,7 @@ export const usePostStore = defineStore("post",{
                 return response.data;
             } catch (error) {
                 const appStore = useAppStore();
-                appStore.error(error.response?.data?.message || "Beğeni işlemi başarısız.");
+                appStore.apiError(error, "Beğeni işlemi başarısız.");
             }
         },
     }

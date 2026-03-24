@@ -7,7 +7,12 @@
     rounded="lg"
     elevation="4"
   >
-    {{ appStore.snackbar.message }}
+    <div>
+      <div>{{ appStore.snackbar.message }}</div>
+      <div v-if="appStore.snackbar.detail" class="text-caption mt-1 opacity-80">
+        {{ appStore.snackbar.detail }}
+      </div>
+    </div>
     <template #actions>
       <v-btn icon="mdi-close" variant="text" size="small" @click="appStore.close" />
     </template>

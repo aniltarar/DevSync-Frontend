@@ -21,7 +21,7 @@ export const useCommentStore = defineStore("comment", {
       } catch (error) {
         this.status = "error";
         this.message = error.response?.data?.message || "Yorumlar yüklenemedi.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Yorumlar yüklenemedi.");
       }
     },
     async createComment({ postId, content, parentCommentId }) {
@@ -36,7 +36,7 @@ export const useCommentStore = defineStore("comment", {
         appStore.success(response.data.message || "Yorum eklendi.");
         return response.data.comment;
       } catch (error) {
-        appStore.error(error.response?.data?.message || "Yorum gönderilemedi.");
+        appStore.apiError(error, "Yorum gönderilemedi.");
         return null;
       }
     },
@@ -51,9 +51,7 @@ export const useCommentStore = defineStore("comment", {
         appStore.success(response.data.message || "Yorum güncellendi.");
         return true;
       } catch (error) {
-        appStore.error(
-          error.response?.data?.message || "Yorum güncellenemedi.",
-        );
+        appStore.apiError(error, "Yorum güncellenemedi.");
         return false;
       }
     },
@@ -67,7 +65,7 @@ export const useCommentStore = defineStore("comment", {
         appStore.success(response.data.message || "Yorum silindi.");
         return true;
       } catch (error) {
-        appStore.error(error.response?.data?.message || "Yorum silinemedi.");
+        appStore.apiError(error, "Yorum silinemedi.");
         return false;
       }
     },
@@ -86,9 +84,7 @@ export const useCommentStore = defineStore("comment", {
           }
         }
       } catch (error) {
-        appStore.error(
-          error.response?.data?.message || "Beğeni işlemi başarısız.",
-        );
+        appStore.apiError(error, "Beğeni işlemi başarısız.");
       }
     },
   },

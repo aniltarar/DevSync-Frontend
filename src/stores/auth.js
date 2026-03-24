@@ -8,6 +8,7 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     status: "idle",
     user: JSON.parse(localStorage.getItem("user")) || null,
+    profileUser: null,
     message: "",
   }),
   getters: {
@@ -29,7 +30,7 @@ export const useAuthStore = defineStore("auth", {
         this.status = "error";
         this.message =
           error.response?.data?.message || "Kayıt işlemi başarısız.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Kayıt işlemi başarısız.");
       }
     },
     async login(credentials) {
@@ -51,16 +52,22 @@ export const useAuthStore = defineStore("auth", {
         this.status = "error";
         this.message =
           error.response?.data?.message || "Giriş işlemi başarısız.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Giriş işlemi başarısız.");
       }
     },
-    logout() {
+    async logout() {
       const appStore = useAppStore();
-      this.user = null;
       this.status = "idle";
-      localStorage.removeItem("user");
-      appStore.info("Çıkış yapıldı.");
-      router.push("/");
+      this.message = "";
+      try {
+        const response = await api.post("/auth/logout");
+        this.user = null;
+        localStorage.removeItem("user");
+        appStore.success(response.data.message || "Başarıyla çıkış yapıldı.");
+        router.push("/auth/login");
+      } catch (error) {
+        appStore.apiError(error, "Çıkış işlemi başarısız.");
+      }
     },
     async updateProfile(data) {
       const appStore = useAppStore();
@@ -74,7 +81,7 @@ export const useAuthStore = defineStore("auth", {
         return true;
       } catch (error) {
         this.status = "error";
-        appStore.error(error.response?.data?.message || "Profil güncellenemedi.");
+        appStore.apiError(error, "Profil güncellenemedi.");
         return false;
       }
     },
@@ -94,8 +101,21 @@ export const useAuthStore = defineStore("auth", {
         return true;
       } catch (error) {
         this.status = "error";
-        appStore.error(error.response?.data?.message || "Avatar yüklenemedi.");
+        appStore.apiError(error, "Avatar yüklenemedi.");
         return false;
+      }
+    },
+    async fetchUserById(userId) {
+      const appStore = useAppStore();
+      this.status = "loading";
+      this.profileUser = null;
+      try {
+        const response = await api.get(`/auth/profile/${userId}`);
+        this.profileUser = response.data.user;
+        this.status = "success";
+      } catch (error) {
+        this.status = "error";
+        appStore.apiError(error, "Kullanıcı profili yüklenemedi.");
       }
     },
   },

@@ -4,7 +4,14 @@
     <!-- Üst: Author bilgisi -->
     <v-card-item>
       <template #prepend>
-        <v-avatar size="40" color="primary" variant="tonal" rounded="circle">
+        <v-avatar
+          size="40"
+          color="primary"
+          variant="tonal"
+          rounded="circle"
+          style="cursor: pointer;"
+          @click.stop="goToProfile"
+        >
           <v-img v-if="authorAvatar" :src="authorAvatar" />
           <span v-else class="text-body-2 font-weight-bold text-primary">
             {{ authorInitials }}
@@ -12,7 +19,11 @@
         </v-avatar>
       </template>
 
-      <v-card-title class="text-body-1 font-weight-bold">
+      <v-card-title
+        class="text-body-1 font-weight-bold"
+        style="cursor: pointer;"
+        @click.stop="goToProfile"
+      >
         {{ post.author?.profile?.name }} {{ post.author?.profile?.surname }}
       </v-card-title>
       <v-card-subtitle class="text-caption">
@@ -461,5 +472,14 @@ const submitComment = async () => {
 
 const goToDetail = () => {
   router.push({ name: "PostDetail", params: { postId: props.post._id } });
+};
+
+const goToProfile = () => {
+  const authorId = props.post.author?._id;
+  if (authorId === authStore.user?._id) {
+    router.push({ name: "Profile" });
+  } else {
+    router.push({ name: "UserProfile", params: { userId: authorId } });
+  }
 };
 </script>

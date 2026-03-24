@@ -22,7 +22,7 @@ export const useProjectStore = defineStore("project", {
       } catch (error) {
         this.status = "error";
         this.message = error.response?.data?.message || "Projeler yüklenemedi.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Projeler yüklenemedi.");
       }
     },
     async fetchMyProjects(){
@@ -36,7 +36,7 @@ export const useProjectStore = defineStore("project", {
       } catch (error) {
         this.status = "error";
         this.message = error.response?.data?.message || "Projeler yüklenemedi.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Projeler yüklenemedi.");
       }
     },
     async fetchProjectById(id) {
@@ -51,7 +51,7 @@ export const useProjectStore = defineStore("project", {
       } catch (error) {
         this.status = "error";
         this.message = error.response?.data?.message || "Proje yüklenemedi.";
-        appStore.error(this.message);
+        appStore.apiError(error, "Proje yüklenemedi.");
       }
     },
   },
