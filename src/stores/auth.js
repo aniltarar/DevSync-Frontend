@@ -16,6 +16,11 @@ export const useAuthStore = defineStore("auth", {
   getters: {
     isAuthenticated: (state) => !!state.user,
     avatarUrl: (state) => getMediaUrl(state.user?.profile?.avatarUrl),
+    fullName: (state) => {
+      if (!state.user) return "";
+      const { name, surname } = state.user.profile || {};
+      return `${name || ""} ${surname || ""}`.trim();
+    },
   },
   actions: {
     async register(userData) {
@@ -106,6 +111,22 @@ export const useAuthStore = defineStore("auth", {
         appStore.apiError(error, "Avatar yüklenemedi.");
         return false;
       }
+    },
+    async deleteAvatar(){
+      const appStore = useAppStore();
+      this.status = "loading";
+      try {
+        const response = await api.delete("/auth/avatar");
+        this.user = { ...this.user, profile: response.data.profile };
+        localStorage.setItem("user", JSON.stringify(this.user));
+        this.status = "success";
+        appStore.success(response.data.message || "Avatar silindi.");
+        return true;
+      } catch (error) {
+        this.status = "error";
+        appStore.apiError(error, "Avatar silinemedi.");
+        return false;
+      } 
     },
     async fetchUserById(userId) {
       const appStore = useAppStore();

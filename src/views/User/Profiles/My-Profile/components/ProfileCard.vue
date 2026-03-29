@@ -5,7 +5,6 @@
         <div
           class="position-relative d-inline-flex rounded-circle"
           :class="{ 'cursor-pointer': isOwner }"
-          @click="isOwner && fileInput.click()"
         >
           <v-avatar
             size="80"
@@ -13,24 +12,54 @@
             variant="tonal"
             rounded="circle"
             class="border-lg border-opacity-100 border-surface"
+            @click="isOwner && (avatarMenu = true)"
           >
             <v-img v-if="user.profile.avatarUrl" :src="avatarUrl" />
             <span v-else class="text-h5 font-weight-bold text-primary">
               {{ initials }}
             </span>
+            <div
+              v-if="isOwner"
+              class="avatar-overlay position-absolute rounded-circle d-flex align-center justify-center"
+              style="
+                inset: 0;
+                background: rgba(0, 0, 0, 0.45);
+                opacity: 0;
+                transition: opacity 0.2s;
+              "
+            >
+              <v-icon color="white" size="22">mdi-camera-outline</v-icon>
+            </div>
           </v-avatar>
-          <div
-            v-if="isOwner"
-            class="avatar-overlay position-absolute rounded-circle d-flex align-center justify-center"
-            style="
-              inset: 0;
-              background: rgba(0, 0, 0, 0.45);
-              opacity: 0;
-              transition: opacity 0.2s;
-            "
-          >
-            <v-icon color="white" size="22">mdi-camera-outline</v-icon>
-          </div>
+          <!-- Dropdown Menu -->
+          <v-menu v-model="avatarMenu" :close-on-content-click="false" location="bottom" offset-y>
+            <template #activator="{ props }">
+              <!-- Hidden activator, menu is opened by avatar click -->
+              <span v-bind="props"></span>
+            </template>
+            <v-list>
+              <v-list-item v-if="!user.profile.avatarUrl" @click="triggerFileInput">
+                <div class="d-flex align-center">
+                  <v-icon color="primary" class="mr-2">mdi-upload</v-icon>
+                  <span>Fotoğraf Yükle</span>
+                </div>
+              </v-list-item>
+              <template v-else>
+                <v-list-item @click="triggerFileInput">
+                  <div class="d-flex align-center">
+                    <v-icon color="primary" class="mr-2">mdi-upload</v-icon>
+                    <span>Fotoğrafı Yükle</span>
+                  </div>
+                </v-list-item>
+                <v-list-item @click="handleDeleteAvatar">
+                  <div class="d-flex align-center">
+                    <v-icon color="error" class="mr-2">mdi-delete</v-icon>
+                    <span>Fotoğrafı Kaldır</span>
+                  </div>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-menu>
           <input
             v-if="isOwner"
             ref="fileInput"
@@ -327,6 +356,7 @@ const isOwner = computed(() => authStore.user?._id === props.user._id);
 const avatarUrl = computed(() => getMediaUrl(props.user.profile?.avatarUrl));
 const editDialog = ref(false);
 const fileInput = ref(null);
+const avatarMenu = ref(false);
 const blockDialog = ref(false);
 const blockLoading = ref(false);
 
@@ -337,11 +367,22 @@ const handleBlock = async () => {
   blockDialog.value = false;
 };
 
+
 const onAvatarChange = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
   await authStore.uploadAvatar(file);
   event.target.value = "";
+  avatarMenu.value = false;
+};
+
+const triggerFileInput = () => {
+  if (fileInput.value) fileInput.value.click();
+};
+
+const handleDeleteAvatar = async () => {
+  await authStore.deleteAvatar();
+  avatarMenu.value = false;
 };
 
 const initials = computed(() => {

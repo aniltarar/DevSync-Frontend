@@ -9,7 +9,7 @@
     @mouseleave="isRail = true"
   >
     <!-- Logo + Tema -->
-    <v-list-item class="d-flex align-center px-4 py-3 ">
+    <v-list-item class="d-flex align-center px-4 py-3">
       <template #prepend>
         <v-icon size="32" color="primary">mdi-code-tags</v-icon>
       </template>
@@ -74,16 +74,60 @@
       />
     </v-list>
 
+
     <template #append>
-      <v-divider />
+
+      <!-- Profil Kartı - Rail modda sadece avatar göster -->
+      <div v-if="isRail" class="d-flex justify-center align-center py-3">
+        <v-avatar
+          size="36"
+          color="primary"
+          class="border border-primary border-opacity-50 cursor-pointer"
+          @click="$router.push('/my-profile')"
+        >
+          <v-img v-if="authStore.avatarUrl" :src="authStore.avatarUrl" />
+          <span v-else class="text-body-2 font-weight-bold text-white">
+            {{ (authStore.fullName || "P")[0].toUpperCase() }}
+          </span>
+        </v-avatar>
+      </div>
+
+      <!-- Profil Kartı - Genişlemiş mod -->
+      <v-list-item
+        v-else
+        :to="'/my-profile'"
+        rounded="lg"
+        class="ma-2 px-2 border border-opacity-25"
+        base-color="primary"
+      >
+        <template #prepend>
+          <v-avatar
+            size="36"
+            color="primary"
+            class="border border-primary border-opacity-50"
+          >
+            <v-img v-if="authStore.avatarUrl" :src="authStore.avatarUrl" />
+            <span v-else class="text-body-2 font-weight-bold text-white">
+              {{ (authStore.fullName || "P")[0].toUpperCase() }}
+            </span>
+          </v-avatar>
+        </template>
+        <template #title>
+          <div class="d-flex flex-column">
+            <span class="text-body-2 font-weight-semibold">
+              {{ authStore.fullName || "Profil" }}
+            </span>
+            <span class="text-caption text-medium-emphasis">
+              @{{ authStore.user?.username }}
+            </span>
+          </div>
+        </template>
+        <template #append>
+          <v-icon size="16" class="text-medium-emphasis">mdi-chevron-right</v-icon>
+        </template>
+      </v-list-item>
+
       <v-list density="compact" nav class="mb-1" active-color="primary">
-        <v-list-item
-          prepend-icon="mdi-account-circle-outline"
-          title="Profil"
-          value="profile"
-          :to="'/my-profile'"
-          rounded="lg"
-        />
         <v-list-item
           prepend-icon="mdi-cog-outline"
           title="Ayarlar"
@@ -128,5 +172,3 @@ const isRail = ref(true);
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
 </script>
-
-<style scoped></style>

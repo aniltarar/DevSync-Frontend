@@ -80,16 +80,7 @@
             Pozisyonlar (Slotlar)
           </v-card-title>
           <template #append>
-            <v-btn
-              variant="tonal"
-              color="primary"
-              size="small"
-              rounded="lg"
-              prepend-icon="mdi-plus"
-              @click="addSlot"
-            >
-              Slot Ekle
-            </v-btn>
+            <SlotForm ref="slotFormRef" @add="onAddSlot" @update="onUpdateSlot" />
           </template>
         </v-card-item>
 
@@ -97,11 +88,11 @@
 
         <v-card-text>
           <div v-if="form.slots.length" class="d-flex flex-column ga-3">
-            <SlotForm
+            <SlotCard
               v-for="(s, i) in form.slots"
               :key="i"
               :slot-data="s"
-              :index="i"
+              @edit="slotFormRef.open(s, i)"
               @remove="form.slots.splice(i, 1)"
             />
           </div>
@@ -141,10 +132,12 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
 import SlotForm from "../Components/SlotForm.vue";
+import SlotCard from "../Components/SlotCard.vue";
 
 const router = useRouter();
 const projectStore = useProjectStore();
 const formRef = ref(null);
+const slotFormRef = ref(null);
 
 const categoryOptions = [
   { title: "Web", value: "web" },
@@ -175,13 +168,12 @@ const rules = {
   required: (v) => !!v || "Bu alan zorunludur.",
 };
 
-function addSlot() {
-  form.slots.push({
-    roleName: "",
-    requiredSkills: [],
-    optionalSkills: [],
-    quota: 1,
-  });
+function onAddSlot(slotData) {
+  form.slots.push(slotData);
+}
+
+function onUpdateSlot(index, slotData) {
+  form.slots[index] = slotData;
 }
 
 async function submit() {
