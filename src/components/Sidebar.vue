@@ -72,6 +72,13 @@
         :to="'/applications'"
         rounded="lg"
       />
+      <v-list-item
+        prepend-icon="mdi-flag-outline"
+        title="Raporlarım"
+        value="reports"
+        :to="'/reports'"
+        rounded="lg"
+      />
     </v-list>
 
 

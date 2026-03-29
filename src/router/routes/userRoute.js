@@ -83,6 +83,18 @@ const userRoutes = [
         component: () => import("@/views/User/Profiles/Profile/index.vue"),
       },
       {
+        path: "reports",
+        name: "Reports",
+        meta: childMeta,
+        component: () => import("@/views/User/Reports/index.vue"),
+      },
+      {
+        path: "reports/:reportId",
+        name: "ReportDetail",
+        meta: childMeta,
+        component: () => import("@/views/User/Reports/Detail/index.vue"),
+      },
+      {
         path: "settings",
         name: "Settings",
         meta: childMeta,

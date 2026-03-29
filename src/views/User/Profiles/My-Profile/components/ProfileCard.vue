@@ -85,6 +85,14 @@
           </v-btn>
           <v-btn
             v-if="!isOwner && !isBlockedBy"
+            icon="mdi-flag-outline"
+            variant="text"
+            size="small"
+            class="text-medium-emphasis"
+            @click="reportDialog = true"
+          />
+          <v-btn
+            v-if="!isOwner && !isBlockedBy"
             :color="isBlocked ? 'error' : 'default'"
             :variant="isBlocked ? 'tonal' : 'outlined'"
             :prepend-icon="
@@ -304,6 +312,14 @@
 
   <UpdateProfileDialog v-if="isOwner" v-model="editDialog" />
 
+  <!-- Rapor dialog -->
+  <ReportDialog
+    v-if="!isOwner"
+    v-model="reportDialog"
+    report-type="user"
+    :content-id="user._id"
+  />
+
   <!-- Engelleme onay dialogu -->
   <v-dialog v-model="blockDialog" max-width="380">
     <v-card rounded="xl">
@@ -344,6 +360,7 @@ import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { getMediaUrl } from "@/utils/mediaUrl";
 import UpdateProfileDialog from "./UpdateProfileDialog.vue";
+import ReportDialog from "@/components/ReportDialog.vue";
 
 const props = defineProps({
   user: { type: Object, required: true },
@@ -359,6 +376,7 @@ const fileInput = ref(null);
 const avatarMenu = ref(false);
 const blockDialog = ref(false);
 const blockLoading = ref(false);
+const reportDialog = ref(false);
 
 const handleBlock = async () => {
   blockLoading.value = true;

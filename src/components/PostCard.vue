@@ -238,6 +238,15 @@
       >
         {{ post.engagement?.commentsCount ?? 0 }}
       </v-btn>
+      <v-spacer />
+      <v-btn
+        v-if="!isOwner"
+        icon="mdi-flag-outline"
+        variant="text"
+        size="small"
+        class="text-medium-emphasis"
+        @click="reportDialog = true"
+      />
     </v-card-actions>
 
     <!-- Yorum alanı -->
@@ -293,6 +302,13 @@
       </p>
     </div>
 
+    <!-- Rapor dialog -->
+    <ReportDialog
+      v-model="reportDialog"
+      report-type="post"
+      :content-id="post._id"
+    />
+
     <!-- Silme onay dialog -->
     <v-dialog v-model="confirmDelete" max-width="360">
       <v-card rounded="xl">
@@ -329,6 +345,7 @@ import { usePostStore } from "@/stores/post";
 import { useAuthStore } from "@/stores/auth";
 import { useCommentStore } from "@/stores/comment";
 import CommentCard from "@/components/CommentCard.vue";
+import ReportDialog from "@/components/ReportDialog.vue";
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -356,6 +373,7 @@ const editNewImages = ref([]);
 const editNewPreviews = ref([]);
 const editFileInput = ref(null);
 const confirmDelete = ref(false);
+const reportDialog = ref(false);
 
 const isOwner = computed(
   () => authStore.user?._id === props.post.author?._id

@@ -95,6 +95,14 @@
       </div>
       <v-spacer />
       <v-btn
+        v-if="!isOwner"
+        icon="mdi-flag-outline"
+        variant="text"
+        size="small"
+        class="text-medium-emphasis"
+        @click.prevent="reportDialog = true"
+      />
+      <v-btn
         size="small"
         color="primary"
         variant="tonal"
@@ -105,16 +113,34 @@
       </v-btn>
     </v-card-actions>
   </v-card>
+
+  <ReportDialog
+    v-model="reportDialog"
+    report-type="project"
+    :content-id="project._id"
+  />
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import ReportDialog from '@/components/ReportDialog.vue';
 
 const props = defineProps({
   project: {
     type: Object,
     required: true,
   },
+});
+
+const authStore = useAuthStore();
+const reportDialog = ref(false);
+
+const isOwner = computed(() => {
+  const ownerId = typeof props.project.ownerId === 'object'
+    ? props.project.ownerId._id
+    : props.project.ownerId;
+  return authStore.user?._id === ownerId;
 });
 
 const ownerProfile = computed(() =>

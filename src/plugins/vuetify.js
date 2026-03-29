@@ -25,6 +25,7 @@ export default createVuetify({
           background: "#F8FAFC",     // Kirli Beyaz (Gözü yormayan açık gri/mavi)
           backgroundOverlay: "#F1F5F9",
           surface: "#FFFFFF",        // Saf Beyaz (Kartlar için)
+          reportPreview: "#FFF8EC",  // Soft Amber (Rapor önizleme arka planı)
           error: "#EF4444",
           warning: "#F59E0B",
           info: "#3B82F6",
@@ -43,6 +44,7 @@ export default createVuetify({
           background: "#0F172A",     // Deep Navy (Yazılımcıların en sevdiği arka plan rengi)
           backgroundOverlay: "#1E293B",
           surface: "#1E293B",        // Slate Blue (Kartlar ve yüzeyler için)
+          reportPreview: "#111925",  // Dark Warm Amber (Rapor önizleme arka planı)
           error: "#F87171",
           warning: "#FBBF24",
           info: "#60A5FA",

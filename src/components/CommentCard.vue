@@ -84,7 +84,22 @@
           >
             Yanıtla
           </v-btn>
+          <v-btn
+            v-if="!isOwner"
+            icon="mdi-flag-outline"
+            variant="text"
+            size="x-small"
+            class="text-medium-emphasis"
+            @click="reportDialog = true"
+          />
         </div>
+
+        <!-- Rapor dialog -->
+        <ReportDialog
+          v-model="reportDialog"
+          report-type="comment"
+          :content-id="comment._id"
+        />
 
         <!-- Yanıt yazma alanı -->
         <div v-if="showReplyInput" class="d-flex ga-2 mt-2 ml-1">
@@ -130,6 +145,7 @@ import { getMediaUrl } from "@/utils/mediaUrl";
 import { formatDate } from "@/utils/formatDate";
 import { useAuthStore } from "@/stores/auth";
 import { useCommentStore } from "@/stores/comment";
+import ReportDialog from "@/components/ReportDialog.vue";
 
 const props = defineProps({
   comment: { type: Object, required: true },
@@ -143,6 +159,7 @@ const showReplyInput = ref(false);
 const replyContent = ref("");
 const editing = ref(false);
 const editContent = ref("");
+const reportDialog = ref(false);
 
 const isOwner = computed(
   () => authStore.user?._id === props.comment.author?._id
