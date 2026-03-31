@@ -3,11 +3,13 @@ import api from "@/api";
 import router from "@/router";
 import { useAppStore } from "@/stores/app";
 import { getMediaUrl } from "@/utils/mediaUrl";
+import { connectSocket, disconnectSocket } from "@/socket";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     status: "idle",
     user: JSON.parse(localStorage.getItem("user")) || null,
+    accessToken: null,
     profileUser: null,
     profileIsBlocked: false,
     profileIsBlockedBy: false,
@@ -23,6 +25,15 @@ export const useAuthStore = defineStore("auth", {
     },
   },
   actions: {
+    async refreshToken() {
+      try {
+        const response = await api.post("/auth/token-refresh");
+        this.accessToken = response.data.accessToken;
+        return this.accessToken;
+      } catch {
+        return null;
+      }
+    },
     async register(userData) {
       const appStore = useAppStore();
       this.status = "loading";
@@ -46,14 +57,19 @@ export const useAuthStore = defineStore("auth", {
       this.message = "";
       try {
         const response = await api.post("/auth/login", credentials);
-        const { user, message } = response.data;
+        const { user, message, accessToken } = response.data;
 
         this.user = user;
+        this.accessToken = accessToken;
         this.status = "success";
         this.message = message || "Başarıyla giriş yapıldı.";
 
         localStorage.setItem("user", JSON.stringify(user));
         appStore.success(this.message);
+
+        const { useSocketStore } = await import("@/stores/socket");
+        useSocketStore().init();
+
         router.push("/feed");
       } catch (error) {
         this.status = "error";
@@ -69,7 +85,13 @@ export const useAuthStore = defineStore("auth", {
       try {
         const response = await api.post("/auth/logout");
         this.user = null;
+        this.accessToken = null;
         localStorage.removeItem("user");
+
+        disconnectSocket();
+        const { useSocketStore } = await import("@/stores/socket");
+        useSocketStore().reset();
+
         appStore.success(response.data.message || "Başarıyla çıkış yapıldı.");
         router.push("/auth/login");
       } catch (error) {

@@ -124,15 +124,41 @@
           />
         </div>
 
-        <!-- Alt yorumlar (replies) -->
-        <div v-if="replies.length" class="mt-3 ml-2 pl-3" style="border-left: 2px solid rgb(var(--v-theme-primary), 0.2);">
+        <!-- Alt yorumlar (replies) - sadece ana yorumda göster, tüm torunları düz listele -->
+        <div
+          v-if="depth === 0 && allReplies.length"
+          class="mt-3 ml-2 pl-3"
+          style="border-left: 2px solid rgb(var(--v-theme-primary), 0.2);"
+        >
           <CommentCard
-            v-for="reply in replies"
+            v-for="reply in visibleReplies"
             :key="reply._id"
             :comment="reply"
-            :all-comments="allComments"
+            :depth="1"
             class="mb-3"
           />
+          <v-btn
+            v-if="!showAllReplies && allReplies.length > REPLY_LIMIT"
+            variant="text"
+            size="x-small"
+            rounded="lg"
+            prepend-icon="mdi-chevron-down"
+            class="text-medium-emphasis mb-1"
+            @click="showAllReplies = true"
+          >
+            {{ allReplies.length - REPLY_LIMIT }} yanıtı daha gör
+          </v-btn>
+          <v-btn
+            v-if="showAllReplies && allReplies.length > REPLY_LIMIT"
+            variant="text"
+            size="x-small"
+            rounded="lg"
+            prepend-icon="mdi-chevron-up"
+            class="text-medium-emphasis mb-1"
+            @click="showAllReplies = false"
+          >
+            Yanıtları gizle
+          </v-btn>
         </div>
       </div>
     </div>
@@ -150,6 +176,7 @@ import ReportDialog from "@/components/ReportDialog.vue";
 const props = defineProps({
   comment: { type: Object, required: true },
   allComments: { type: Array, default: () => [] },
+  depth: { type: Number, default: 0 },
 });
 
 const authStore = useAuthStore();
@@ -160,6 +187,8 @@ const replyContent = ref("");
 const editing = ref(false);
 const editContent = ref("");
 const reportDialog = ref(false);
+const showAllReplies = ref(false);
+const REPLY_LIMIT = 3;
 
 const isOwner = computed(
   () => authStore.user?._id === props.comment.author?._id
@@ -179,9 +208,22 @@ const authorInitials = computed(() => {
   return (n + s).toUpperCase() || props.comment.author?.username?.[0]?.toUpperCase() || "?";
 });
 
-const replies = computed(() =>
-  props.allComments.filter((c) => c.parentCommentId === props.comment._id)
+const visibleReplies = computed(() =>
+  showAllReplies.value ? allReplies.value : allReplies.value.slice(0, REPLY_LIMIT)
 );
+
+const allReplies = computed(() => {
+  const result = [];
+  const collect = (parentId) => {
+    const children = props.allComments.filter((c) => c.parentCommentId === parentId);
+    children.forEach((child) => {
+      result.push(child);
+      collect(child._id);
+    });
+  };
+  collect(props.comment._id);
+  return result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+});
 
 const submitReply = async () => {
   if (!replyContent.value.trim()) return;
