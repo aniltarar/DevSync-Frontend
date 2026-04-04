@@ -1,9 +1,10 @@
 <template>
+  <div>
   <!-- Geri butonu -->
   <v-btn
     variant="text"
     prepend-icon="mdi-arrow-left"
-    class="mb-4 pa-2"
+    class="mb-4 pa-2 align-self-start"
     :to="{ name: 'Projects' }"
   >
     Projelere Dön
@@ -267,6 +268,7 @@
       </v-card-actions>
     </v-card>
   </template>
+  </div>
 </template>
 
 <script setup>

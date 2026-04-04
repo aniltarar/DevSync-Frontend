@@ -24,9 +24,8 @@ import { useSocketStore } from "@/stores/socket";
 const authStore = useAuthStore();
 const socketStore = useSocketStore();
 
-onMounted(async () => {
+onMounted(() => {
   if (authStore.isAuthenticated) {
-    await authStore.refreshToken();
     socketStore.init();
   }
 });

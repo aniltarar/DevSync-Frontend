@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-card rounded="xl" elevation="0" border>
     <v-card-item>
       <template #prepend>
@@ -108,6 +109,19 @@
               @click="handleFollow"
             >
               {{ isFollowing ? "Takip Ediliyor" : "Takip Et" }}
+            </v-btn>
+
+            <!-- Mesaj Gönder butonu -->
+            <v-btn
+              v-if="!isBlocked"
+              color="secondary"
+              variant="tonal"
+              rounded="lg"
+              prepend-icon="mdi-message-outline"
+              :loading="messageLoading"
+              @click="handleSendMessage"
+            >
+              Mesaj
             </v-btn>
 
             <!-- Daha fazla (rapor / engel) -->
@@ -566,12 +580,14 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useChatStore } from "@/stores/chat";
 import { getMediaUrl } from "@/utils/mediaUrl";
 import UpdateProfileDialog from "./UpdateProfileDialog.vue";
 import ReportDialog from "@/components/ReportDialog.vue";
@@ -587,6 +603,7 @@ const props = defineProps({
 });
 
 const authStore = useAuthStore();
+const chatStore = useChatStore();
 const router = useRouter();
 const isOwner = computed(() => authStore.user?._id === props.user._id);
 const avatarUrl = computed(() => getMediaUrl(props.user.profile?.avatarUrl));
@@ -597,6 +614,7 @@ const blockDialog = ref(false);
 const blockLoading = ref(false);
 const followLoading = ref(false);
 const reportDialog = ref(false);
+const messageLoading = ref(false);
 const followDialog = ref(false);
 const followDialogTab = ref("following");
 
@@ -617,6 +635,15 @@ onMounted(() => {
     authStore.fetchFollowers();
   }
 });
+
+const handleSendMessage = async () => {
+  messageLoading.value = true;
+  const conv = await chatStore.createOrGetConversation(props.user._id);
+  messageLoading.value = false;
+  if (conv) {
+    router.push({ path: "/messages", query: { conversationId: conv._id } });
+  }
+};
 
 const handleBlock = async () => {
   blockLoading.value = true;
