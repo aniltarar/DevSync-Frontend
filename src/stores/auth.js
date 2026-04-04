@@ -13,6 +13,14 @@ export const useAuthStore = defineStore("auth", {
     profileUser: null,
     profileIsBlocked: false,
     profileIsBlockedBy: false,
+    profileIsFollowing: false,
+    profileIsFollowedBy: false,
+    profileFollowersCount: 0,
+    profileFollowingCount: 0,
+    following: [],
+    followers: [],
+    searchResults: [],
+    searchStatus: "idle",
     message: "",
   }),
   getters: {
@@ -155,15 +163,73 @@ export const useAuthStore = defineStore("auth", {
       this.status = "loading";
       this.profileUser = null;
       this.profileIsBlocked = false;
+      this.profileIsFollowing = false;
+      this.profileIsFollowedBy = false;
+      this.profileFollowersCount = 0;
+      this.profileFollowingCount = 0;
       try {
         const response = await api.get(`/auth/profile/${userId}`);
         this.profileUser = response.data.user;
         this.profileIsBlocked = response.data.isBlocked ?? false;
         this.profileIsBlockedBy = response.data.isBlockedBy ?? false;
+        this.profileIsFollowing = response.data.isFollowing ?? false;
+        this.profileIsFollowedBy = response.data.isFollowedBy ?? false;
+        this.profileFollowersCount = response.data.followersCount ?? 0;
+        this.profileFollowingCount = response.data.followingCount ?? 0;
         this.status = "success";
       } catch (error) {
         this.status = "error";
         appStore.apiError(error, "Kullanıcı profili yüklenemedi.");
+      }
+    },
+    async followUser(userId) {
+      const appStore = useAppStore();
+      try {
+        const response = await api.post(`/auth/follow/${userId}`);
+        appStore.success(response.data.message || "İşlem başarılı.");
+        const wasFollowing = this.profileIsFollowing;
+        this.profileIsFollowing = !wasFollowing;
+        this.profileFollowersCount += wasFollowing ? -1 : 1;
+        return response.data;
+      } catch (error) {
+        appStore.apiError(error, "Takip işlemi başarısız.");
+        return null;
+      }
+    },
+    async fetchFollowing() {
+      const appStore = useAppStore();
+      this.status = "loading";
+      try {
+        const response = await api.get("/auth/following");
+        this.following = response.data.following ?? response.data.data ?? [];
+        this.status = "success";
+      } catch (error) {
+        this.status = "error";
+        appStore.apiError(error, "Takip edilenler yüklenemedi.");
+      }
+    },
+    async fetchFollowers() {
+      const appStore = useAppStore();
+      this.status = "loading";
+      try {
+        const response = await api.get("/auth/followers");
+        this.followers = response.data.followers ?? response.data.data ?? [];
+        this.status = "success";
+      } catch (error) {
+        this.status = "error";
+        appStore.apiError(error, "Takipçiler yüklenemedi.");
+      }
+    },
+    async searchUsers(query) {
+      const appStore = useAppStore();
+      this.searchStatus = "loading";
+      try {
+        const response = await api.get("/auth/users/search", { params: { q: query } });
+        this.searchResults = response.data.users ?? response.data.data ?? [];
+        this.searchStatus = "success";
+      } catch (error) {
+        this.searchStatus = "error";
+        appStore.apiError(error, "Kullanıcı araması başarısız.");
       }
     },
     async blockUser(userId) {

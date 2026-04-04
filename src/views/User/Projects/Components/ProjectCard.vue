@@ -1,5 +1,12 @@
 <template>
-  <v-card rounded="lg" border flat class="h-100 d-flex flex-column" :to="`/projects/${project._id}`" style="cursor: pointer;">
+  <v-card
+    rounded="lg"
+    border
+    flat
+    class="h-100 d-flex flex-column"
+    :to="`/projects/${project._id}`"
+    style="cursor: pointer"
+  >
     <!-- Header -->
     <v-card-item>
       <template #prepend>
@@ -12,7 +19,10 @@
         {{ project.title }}
       </v-card-title>
 
-      <v-card-subtitle v-if="ownerProfile" class="d-flex align-center ga-1 mt-1">
+      <v-card-subtitle
+        v-if="ownerProfile"
+        class="d-flex align-center ga-1 mt-1"
+      >
         <v-avatar
           :image="ownerProfile.avatarUrl || undefined"
           :color="!ownerProfile.avatarUrl ? 'secondary' : undefined"
@@ -28,23 +38,42 @@
 
       <template #append>
         <v-chip :color="statusColor" size="x-small" variant="tonal">
-           {{ statusLabel }}
+          {{ statusLabel }}
         </v-chip>
       </template>
     </v-card-item>
 
     <!-- Description -->
-    <v-card-text class="text-body-2 text-medium-emphasis flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+    <v-card-text
+      class="text-body-2 text-medium-emphasis flex-grow-1"
+      style="
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      "
+    >
       {{ project.description }}
     </v-card-text>
 
     <!-- Chips: category & type -->
     <v-card-text class="pt-0 d-flex flex-wrap ga-1">
-      <v-chip size="x-small" variant="tonal" color="primary" prepend-icon="mdi-tag-outline">
-          {{ categoryLabel }}
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        color="primary"
+        prepend-icon="mdi-tag-outline"
+      >
+        {{ categoryLabel }}
       </v-chip>
-      <v-chip size="x-small" variant="tonal" color="secondary" prepend-icon="mdi-account-group-outline">
-          {{ project.projectType === 'team' ? 'Takım' : 'Solo' }}
+      <v-chip
+        size="x-small"
+        variant="tonal"
+        color="secondary"
+        prepend-icon="mdi-account-group-outline"
+      >
+        {{ project.projectType === "team" ? "Takım" : "Solo" }}
       </v-chip>
     </v-card-text>
 
@@ -69,7 +98,11 @@
               :color="slot.status === 'open' ? 'success' : 'medium-emphasis'"
               size="12"
             >
-              {{ slot.status === 'open' ? 'mdi-account-plus-outline' : 'mdi-account-check-outline' }}
+              {{
+                slot.status === "open"
+                  ? "mdi-account-plus-outline"
+                  : "mdi-account-check-outline"
+              }}
             </v-icon>
             <span class="text-caption">{{ slot.roleName }}</span>
           </div>
@@ -81,7 +114,10 @@
             {{ slot.filledBy.length }}/{{ slot.quota }}
           </v-chip>
         </div>
-        <span v-if="project.slots.length === 0" class="text-caption text-disabled">
+        <span
+          v-if="project.slots.length === 0"
+          class="text-caption text-disabled"
+        >
           Slot tanımlanmamış
         </span>
       </div>
@@ -122,9 +158,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import ReportDialog from '@/components/ReportDialog.vue';
+import { computed, ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import ReportDialog from "@/components/ReportDialog.vue";
 
 const props = defineProps({
   project: {
@@ -137,51 +173,66 @@ const authStore = useAuthStore();
 const reportDialog = ref(false);
 
 const isOwner = computed(() => {
-  const ownerId = typeof props.project.ownerId === 'object'
-    ? props.project.ownerId._id
-    : props.project.ownerId;
+  const ownerId =
+    typeof props.project.ownerId === "object"
+      ? props.project.ownerId._id
+      : props.project.ownerId;
   return authStore.user?._id === ownerId;
 });
 
 const ownerProfile = computed(() =>
-  typeof props.project.ownerId === 'object' ? props.project.ownerId.profile : null
+  typeof props.project.ownerId === "object"
+    ? props.project.ownerId.profile
+    : null,
 );
 
 const totalQuota = computed(() =>
-  props.project.slots.reduce((sum, s) => sum + s.quota, 0)
+  props.project.slots.reduce((sum, s) => sum + s.quota, 0),
 );
 
 const totalFilled = computed(() =>
-  props.project.slots.reduce((sum, s) => sum + s.filledBy.length, 0)
+  props.project.slots.reduce((sum, s) => sum + s.filledBy.length, 0),
 );
 
 const statusColor = computed(() => {
-  const map = { draft: 'warning', pending: 'info', active: 'success', closed: 'error', rejected: 'error' };
-  return map[props.project.status] ?? 'default';
+  const map = {
+    draft: "warning",
+    pending: "info",
+    active: "success",
+    closed: "error",
+    rejected: "error",
+  };
+  return map[props.project.status] ?? "default";
 });
 
 const statusLabel = computed(() => {
-  const map = { draft: 'Taslak', pending: 'Beklemede', active: 'Aktif', closed: 'Kapalı', rejected: 'Reddedildi' };
+  const map = {
+    draft: "Taslak",
+    pending: "Beklemede",
+    active: "Aktif",
+    closed: "Kapalı",
+    rejected: "Reddedildi",
+  };
   return map[props.project.status] ?? props.project.status;
 });
 
 const categoryLabel = computed(() => {
   const map = {
-    web: 'Web',
-    mobile: 'Mobil',
-    desktop: 'Masaüstü',
-    ai: 'Yapay Zeka',
-    game: 'Oyun',
-    other: 'Diğer',
+    web: "Web",
+    mobile: "Mobil",
+    desktop: "Masaüstü",
+    ai: "Yapay Zeka",
+    game: "Oyun",
+    other: "Diğer",
   };
   return map[props.project.category] ?? props.project.category;
 });
 
 const formattedDate = computed(() =>
-  new Date(props.project.createdAt).toLocaleDateString('tr-TR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+  new Date(props.project.createdAt).toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }),
 );
 </script>

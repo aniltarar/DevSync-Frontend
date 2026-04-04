@@ -71,6 +71,12 @@ const userRoutes = [
           ),
       },
       {
+        path: "search",
+        name: "SearchUsers",
+        meta: childMeta,
+        component: () => import("@/views/User/Search/index.vue"),
+      },
+      {
         path: "my-profile",
         name: "Profile",
         meta: childMeta,

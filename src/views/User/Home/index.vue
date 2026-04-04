@@ -2,6 +2,12 @@
   <div>
     <h1>Dev Sync - Akış'a hoş geldiniz!.</h1>
     <CreatePostCard class="mb-6" />
+    <!-- Post listesi -->
+    <div class="d-flex flex-column ga-4">
+      <PostCard v-for="post in postStore.posts" :key="post._id" :post="post" />
+    </div>
+
+    <!-- Infinite scroll sentinel -->
     <div v-if="hasMore" ref="sentinel" class="d-flex justify-center py-6">
       <v-progress-circular
         v-if="postStore.status === 'loading'"
@@ -10,13 +16,6 @@
         size="28"
       />
     </div>
-
-    <!-- Post listesi -->
-    <div class="d-flex flex-column ga-4">
-      <PostCard v-for="post in postStore.posts" :key="post._id" :post="post" />
-    </div>
-
-    <!-- Infinite scroll sentinel -->
 
     <!-- Tüm postlar yüklendi -->
     <p

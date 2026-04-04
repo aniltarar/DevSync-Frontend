@@ -1,52 +1,63 @@
-# Vue Template Project
+# DevSync — Frontend
 
-Modern ve ölçeklenebilir Vue.js uygulamaları için hazır template projesi.
+Geliştiricileri bir araya getiren işbirliği platformunun modern, gerçek zamanlı kullanıcı arayüzü.
 
-## Özellikler
+## Teknolojiler
 
-- **Vue 3** - Modern Vue framework
-- **Pinia** - State management
-- **Vue Router** - Multi-route yapısı
-- **Layout Bazlı Mimari** - AdminLayout, AuthLayout, UserLayout
-- **Modüler Yapı** - Organize edilmiş klasör yapısı
+| Kategori | Teknoloji |
+|----------|-----------|
+| Framework | Vue 3 (Composition API) |
+| Build Tool | Vite |
+| UI Kütüphanesi | Vuetify 4 (Material Design) |
+| State Yönetimi | Pinia |
+| Routing | Vue Router |
+| HTTP Client | Axios |
+| Gerçek Zamanlı | Socket.io Client |
+
+## Mimari
+
+- **Component-Based SPA** — Vue 3 `<script setup>` ile modern Composition API kullanımı
+- **Multi-Layout Routing** — Auth, User ve Admin için ayrı layout yapıları ve rol bazlı route guard'lar
+- **Domain-Driven Stores** — Pinia ile her modül için ayrı store (auth, post, project, socket vb.)
+- **Centralized API Layer** — Axios interceptor ile otomatik token yenileme ve istek kuyruğu
+- **Lazy Loading** — Tüm route'larda dynamic import ile code splitting
+- **Real-Time State Sync** — Socket.io ile anlık bildirim, presence ve mesaj senkronizasyonu
+
+## Öne Çıkan Özellikler
+
+- **Akış & Sosyal** — Post paylaşımı, beğeni, iç içe yorum sistemi
+- **Proje Keşfi** — Proje arama, detay görüntüleme, slot bazlı başvuru
+- **Anlık Mesajlaşma** — Gerçek zamanlı direkt ve grup sohbetleri
+- **Canlı Bildirimler** — Socket üzerinden anlık bildirim alımı
+- **Online Durum** — Kullanıcı presence takibi ve gösterimi
+- **Tema Desteği** — Light/Dark mod, localStorage ile kalıcılık
+- **Admin Paneli** — Raporlama ve içerik yönetimi
+- **Profil Yönetimi** — Avatar yükleme, beceri ve bilgi düzenleme
 
 ## Proje Yapısı
 
 ```
-vue-template/
-├── public/              # Statik dosyalar
-├── src/
-│   ├── assets/         # Resim, font vb. kaynaklar
-│   ├── components/     # Tekrar kullanılabilir componentler
-│   ├── layouts/        # Layout componentleri
-│   │   ├── AdminLayout.vue
-│   │   ├── AuthLayout.vue
-│   │   └── UserLayout.vue
-│   ├── router/         # Route tanımlamaları
-│   │   ├── routes/
-│   │   │   ├── adminRoutes.js
-│   │   │   ├── authRoutes.js
-│   │   │   └── userRoutes.js
-│   │   └── index.js
-│   ├── stores/         # Pinia store'ları
-│   │   └── auth.js
-│   ├── views/          # Sayfa componentleri
-│   │   ├── Admin/
-│   │   ├── Auth/
-│   │   │   ├── Login/
-│   │   │   │   └── index.vue
-│   │   │   └── Register/
-│   │   └── User/
-│   │       └── App.vue
-│   ├── App.vue         # Ana component
-│   ├── main.js         # Uygulama giriş noktası
-│   └── style.css       # Global stiller
-├── .gitignore
-├── index.html
-├── package.json
-├── package-lock.json
-├── README.md
-└── vite.config.js      # Vite konfigürasyonu
+src/
+├── api/             # Axios instance ve interceptor'lar
+├── components/      # Paylaşılan bileşenler
+├── constants/       # Sabit değerler
+├── layouts/         # Auth, User, Admin layout'ları
+├── plugins/         # Vuetify yapılandırması
+├── router/          # Route tanımları ve guard'lar
+├── socket/          # Socket.io bağlantı yönetimi
+├── stores/          # Pinia store modülleri
+├── utils/           # Yardımcı fonksiyonlar
+├── views/           # Sayfa bileşenleri (22+ route)
+├── App.vue
+└── main.js
+```
+
+## Kurulum
+
+```bash
+npm install
+npm run dev       # Geliştirme (Vite HMR)
+npm run build     # Prodüksiyon build
 ```
 
 ## Kurulum

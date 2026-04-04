@@ -38,6 +38,13 @@
         rounded="lg"
       />
       <v-list-item
+        prepend-icon="mdi-account-search-outline"
+        title="Kullanıcı Ara"
+        value="search"
+        :to="'/search'"
+        rounded="lg"
+      />
+      <v-list-item
         prepend-icon="mdi-folder-multiple-outline"
         title="Projeler"
         value="projects"

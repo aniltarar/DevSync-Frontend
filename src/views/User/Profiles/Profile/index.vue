@@ -7,6 +7,10 @@
       :user="authStore.profileUser"
       :is-blocked="authStore.profileIsBlocked"
       :is-blocked-by="authStore.profileIsBlockedBy"
+      :is-following="authStore.profileIsFollowing"
+      :is-followed-by="authStore.profileIsFollowedBy"
+      :followers-count="authStore.profileFollowersCount"
+      :following-count="authStore.profileFollowingCount"
     />
     <ProfileTabs v-if="!authStore.profileIsBlocked && !authStore.profileIsBlockedBy" :user-id="authStore.profileUser._id" />
   </div>
