@@ -11,6 +11,16 @@ export const useAppStore = defineStore("app", () => {
     location: "top right",
   });
 
+  const notificationSnackbar = ref({
+    show: false,
+    message: "",
+    icon: "mdi-bell",
+    color: "info",
+    avatarUrl: "",
+    route: null,
+    timeout: 5000,
+  });
+
   function toast(message, color = "success", timeout = 3000, detail = "") {
     snackbar.value = {
       show: true,
@@ -48,5 +58,21 @@ export const useAppStore = defineStore("app", () => {
     snackbar.value.show = false;
   }
 
-  return { snackbar, toast, success, error, apiError, info, warning, close };
+  function notificationToast({ message, icon, color, avatarUrl, route }) {
+    notificationSnackbar.value = {
+      show: true,
+      message: message || "Yeni bildirim",
+      icon: icon || "mdi-bell",
+      color: color || "info",
+      avatarUrl: avatarUrl || "",
+      route: route || null,
+      timeout: 5000,
+    };
+  }
+
+  function closeNotification() {
+    notificationSnackbar.value.show = false;
+  }
+
+  return { snackbar, notificationSnackbar, toast, success, error, apiError, info, warning, close, notificationToast, closeNotification };
 });

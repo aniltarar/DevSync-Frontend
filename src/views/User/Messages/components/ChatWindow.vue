@@ -1,15 +1,21 @@
 <template>
   <div class="chat-window d-flex flex-column" style="height: 100%; overflow: hidden">
     <!-- Sohbet yoksa placeholder -->
-    <div v-if="!chatStore.activeConversation" class="d-flex flex-column align-center justify-center flex-grow-1">
-      <v-icon size="64" color="primary" class="mb-4 opacity-30">mdi-message-text-outline</v-icon>
-      <p class="text-body-1 text-medium-emphasis mb-4">Bir sohbet seçin veya yeni sohbet başlatın</p>
+    <div v-if="!chatStore.activeConversation" class="d-flex flex-column align-center justify-center flex-grow-1 empty-chat">
+      <div class="empty-chat-icon mb-5">
+        <v-icon size="40" color="primary">mdi-message-text-outline</v-icon>
+      </div>
+      <p class="text-h6 font-weight-medium mb-2" style="opacity: 0.7">Sohbet Seçin</p>
+      <p class="text-body-2 text-medium-emphasis mb-5" style="max-width: 280px; text-align: center">
+        Bir sohbet seçin veya yeni bir konuşma başlatın
+      </p>
       <v-btn
         v-if="!props.sidebarOpen"
         variant="tonal"
         color="primary"
-        rounded="lg"
-        prepend-icon="mdi-menu"
+        rounded="pill"
+        prepend-icon="mdi-message-text-outline"
+        class="text-none"
         @click="$emit('toggle-sidebar')"
       >
         Sohbetleri Göster
@@ -32,33 +38,36 @@
         @archive="archiveDialog = true"
       />
 
-      <v-divider />
-
       <!-- Mesajlar -->
       <div
         ref="messagesContainer"
-        class="flex-grow-1 overflow-y-auto pa-4"
+        class="flex-grow-1 overflow-y-auto messages-area custom-scrollbar"
         style="min-height: 0"
         @scroll="onScroll"
       >
         <!-- Üst yükleniyor spinner -->
-        <div v-if="loadingMore" class="d-flex justify-center mb-3">
-          <v-progress-circular indeterminate size="24" width="2" color="primary" />
+        <div v-if="loadingMore" class="d-flex justify-center mb-3 pt-4">
+          <v-progress-circular indeterminate size="22" width="2" color="primary" />
         </div>
 
         <!-- Tüm mesajlar yüklendi bilgisi -->
-        <div v-else-if="!canLoadMore && chatStore.messages.length" class="d-flex justify-center mb-3">
-          <span class="text-caption text-medium-emphasis">Tüm mesajlar yüklendi</span>
+        <div v-else-if="!canLoadMore && chatStore.messages.length" class="d-flex justify-center mb-3 pt-4">
+          <v-chip size="x-small" variant="tonal" color="primary" rounded="pill" class="text-caption">
+            Tüm mesajlar yüklendi
+          </v-chip>
         </div>
 
         <div v-if="chatStore.messagesStatus === 'loading' && !chatStore.messages.length" class="d-flex justify-center py-10">
-          <v-progress-circular indeterminate color="primary" />
+          <v-progress-circular indeterminate color="primary" size="32" width="2" />
         </div>
 
         <template v-else>
-          <div v-if="!chatStore.messages.length" class="d-flex flex-column align-center justify-center py-10">
-            <v-icon size="48" color="primary" class="mb-3 opacity-30">mdi-message-plus-outline</v-icon>
-            <p class="text-body-2 text-medium-emphasis">Henüz mesaj yok. İlk mesajı gönderin!</p>
+          <div v-if="!chatStore.messages.length" class="d-flex flex-column align-center justify-center py-12">
+            <div class="empty-msgs-icon mb-4">
+              <v-icon size="28" color="primary">mdi-message-plus-outline</v-icon>
+            </div>
+            <p class="text-body-2 font-weight-medium mb-1">Henüz mesaj yok</p>
+            <p class="text-caption text-medium-emphasis">Bu konuşmadaki ilk mesajı gönderin</p>
           </div>
 
           <!-- Tarih ayracı + mesajlar -->
@@ -67,13 +76,11 @@
             <!-- Tarih ayracı -->
             <div
               v-if="showDateSeparator(idx)"
-              class="d-flex align-center my-3"
+              class="d-flex align-center justify-center my-4"
             >
-              <v-divider class="flex-grow-1" />
-              <span class="mx-3 text-caption text-medium-emphasis">
+              <v-chip size="x-small" variant="tonal" rounded="pill" class="date-chip">
                 {{ formatDateLabel(msg.createdAt) }}
-              </span>
-              <v-divider class="flex-grow-1" />
+              </v-chip>
             </div>
 
             <MessageBubble
@@ -87,49 +94,96 @@
       </div>
 
       <!-- Mesaj Input -->
-      <v-divider />
-      <div class="pa-3">
-        <v-textarea
-          v-model="messageText"
-          placeholder="Mesajınızı yazın..."
-          variant="outlined"
-          density="compact"
-          rounded="lg"
-          rows="1"
-          max-rows="4"
-          auto-grow
-          hide-details
-          no-resize
-          @keydown.enter.exact.prevent="handleSend"
-          @input="handleTyping"
-        >
-          <template #append-inner>
-            <v-btn
-              icon
-              variant="text"
-              size="small"
-              color="primary"
-              :disabled="!messageText.trim()"
-              :loading="chatStore.sendingStatus === 'sending'"
-              @click="handleSend"
-            >
-              <v-icon>mdi-send</v-icon>
-            </v-btn>
-          </template>
-        </v-textarea>
+      <div class="message-input-area">
+        <!-- Dosya Önizleme -->
+        <Transition name="slide-up">
+          <div v-if="selectedFile" class="file-preview mb-2">
+            <div class="d-flex align-center ga-3 pa-2 rounded-lg" style="background: rgba(var(--v-theme-primary), 0.06)">
+              <div v-if="filePreviewUrl" class="file-thumb rounded-lg overflow-hidden">
+                <v-img :src="filePreviewUrl" width="56" height="56" cover />
+              </div>
+              <div v-else class="file-thumb-icon rounded-lg d-flex align-center justify-center">
+                <v-icon size="24" color="primary">mdi-file-outline</v-icon>
+              </div>
+              <div class="flex-grow-1 overflow-hidden">
+                <p class="text-body-2 font-weight-medium text-truncate">{{ selectedFile.name }}</p>
+                <p class="text-caption text-medium-emphasis">{{ formatFileSize(selectedFile.size) }}</p>
+              </div>
+              <v-btn icon variant="text" size="x-small" @click="clearSelectedFile">
+                <v-icon size="18">mdi-close</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </Transition>
+
+        <div class="d-flex align-center ga-1">
+          <!-- Dosya ekleme butonu -->
+          <v-btn
+            icon
+            variant="text"
+            size="small"
+            color="primary"
+            class="attach-btn flex-shrink-0"
+            @click="$refs.fileInput.click()"
+          >
+            <v-icon size="20">mdi-paperclip</v-icon>
+            <v-tooltip activator="parent" location="top">Dosya Ekle (max 10MB)</v-tooltip>
+          </v-btn>
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            style="display: none"
+            @change="onFileSelected"
+          />
+
+          <v-textarea
+            v-model="messageText"
+            placeholder="Mesajınızı yazın..."
+            variant="outlined"
+            density="compact"
+            rounded="xl"
+            rows="1"
+            max-rows="4"
+            auto-grow
+            hide-details
+            no-resize
+            class="message-input"
+            @keydown.enter.exact.prevent="handleSend"
+            @input="handleTyping"
+          >
+            <template #append-inner>
+              <v-btn
+                icon
+                variant="flat"
+                size="small"
+                color="primary"
+                :disabled="!canSend"
+                :loading="chatStore.sendingStatus === 'sending'"
+                class="send-btn"
+                @click="handleSend"
+              >
+                <v-icon size="18">mdi-send</v-icon>
+              </v-btn>
+            </template>
+          </v-textarea>
+        </div>
       </div>
     </template>
 
     <!-- Düzenleme Dialog -->
     <v-dialog v-model="editDialog" max-width="420">
-      <v-card rounded="xl">
-        <v-card-title class="text-h6 pt-5 px-5">Mesajı Düzenle</v-card-title>
-        <v-card-text class="px-5">
+      <v-card rounded="xl" elevation="0" class="dialog-card">
+        <v-card-title class="text-subtitle-1 font-weight-bold pt-5 px-5 d-flex align-center ga-2">
+          <v-icon size="20" color="primary">mdi-pencil-outline</v-icon>
+          Mesajı Düzenle
+        </v-card-title>
+        <v-card-text class="px-5 pb-2">
           <v-textarea
             v-model="editContent"
             variant="outlined"
             density="compact"
-            rounded="lg"
+            rounded="xl"
             rows="2"
             max-rows="6"
             auto-grow
@@ -139,11 +193,12 @@
         </v-card-text>
         <v-card-actions class="px-5 pb-5">
           <v-spacer />
-          <v-btn variant="text" rounded="lg" @click="editDialog = false">İptal</v-btn>
+          <v-btn variant="text" rounded="pill" class="text-none" @click="editDialog = false">İptal</v-btn>
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
+            rounded="pill"
+            class="text-none px-5"
             :disabled="!editContent.trim()"
             :loading="editLoading"
             @click="confirmEdit"
@@ -156,18 +211,22 @@
 
     <!-- Silme Dialog -->
     <v-dialog v-model="deleteDialog" max-width="380">
-      <v-card rounded="xl">
-        <v-card-title class="text-h6 pt-5 px-5">Mesajı Sil</v-card-title>
+      <v-card rounded="xl" elevation="0" class="dialog-card">
+        <v-card-title class="text-subtitle-1 font-weight-bold pt-5 px-5 d-flex align-center ga-2">
+          <v-icon size="20" color="error">mdi-delete-outline</v-icon>
+          Mesajı Sil
+        </v-card-title>
         <v-card-text class="px-5 text-body-2">
           Bu mesaj kalıcı olarak silinecek. Devam etmek istiyor musunuz?
         </v-card-text>
         <v-card-actions class="px-5 pb-5">
           <v-spacer />
-          <v-btn variant="text" rounded="lg" @click="deleteDialog = false">İptal</v-btn>
+          <v-btn variant="text" rounded="pill" class="text-none" @click="deleteDialog = false">İptal</v-btn>
           <v-btn
             color="error"
             variant="flat"
-            rounded="lg"
+            rounded="pill"
+            class="text-none px-5"
             :loading="deleteLoading"
             @click="confirmDelete"
           >
@@ -179,18 +238,22 @@
 
     <!-- Arşivleme Dialog -->
     <v-dialog v-model="archiveDialog" max-width="380">
-      <v-card rounded="xl">
-        <v-card-title class="text-h6 pt-5 px-5">Sohbeti Arşivle</v-card-title>
+      <v-card rounded="xl" elevation="0" class="dialog-card">
+        <v-card-title class="text-subtitle-1 font-weight-bold pt-5 px-5 d-flex align-center ga-2">
+          <v-icon size="20" color="primary">mdi-archive-outline</v-icon>
+          Sohbeti Arşivle
+        </v-card-title>
         <v-card-text class="px-5 text-body-2">
           Bu sohbet arşivlenecek ve listeden kaldırılacak. Devam etmek istiyor musunuz?
         </v-card-text>
         <v-card-actions class="px-5 pb-5">
           <v-spacer />
-          <v-btn variant="text" rounded="lg" @click="archiveDialog = false">İptal</v-btn>
+          <v-btn variant="text" rounded="pill" class="text-none" @click="archiveDialog = false">İptal</v-btn>
           <v-btn
             color="error"
             variant="flat"
-            rounded="lg"
+            rounded="pill"
+            class="text-none px-5"
             @click="confirmArchive"
           >
             Arşivle
@@ -207,6 +270,7 @@ import { useRouter } from "vue-router";
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from "@/stores/auth";
 import { useSocketStore } from "@/stores/socket";
+import { useAppStore } from "@/stores/app";
 import { getMediaUrl } from "@/utils/mediaUrl";
 import MessageBubble from "./MessageBubble.vue";
 import ChatHeader from "./ChatHeader.vue";
@@ -225,6 +289,12 @@ const socketStore = useSocketStore();
 const messagesContainer = ref(null);
 const messageText = ref("");
 const loadingMore = ref(false);
+
+// File upload
+const selectedFile = ref(null);
+const filePreviewUrl = ref(null);
+const fileInput = ref(null);
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Edit
 const editDialog = ref(false);
@@ -282,6 +352,8 @@ const canLoadMore = computed(() => {
   return p.currentPage < p.totalPages;
 });
 
+const canSend = computed(() => messageText.value.trim() || selectedFile.value);
+
 // Mesaj geldiğinde otomatik scroll
 watch(
   () => chatStore.messages.length,
@@ -321,10 +393,14 @@ async function loadOlderMessages() {
 
 async function handleSend() {
   const text = messageText.value.trim();
-  if (!text || !chatStore.activeConversation) return;
+  const file = selectedFile.value;
+  if ((!text && !file) || !chatStore.activeConversation) return;
+  const content = text || (file ? file.name : "");
   messageText.value = "";
+  const sendFile = file;
+  clearSelectedFile();
   stopTyping();
-  await chatStore.sendMessage(chatStore.activeConversation._id, text);
+  await chatStore.sendMessage(chatStore.activeConversation._id, content, sendFile);
   await nextTick();
   scrollToBottom();
 }
@@ -345,6 +421,44 @@ function stopTyping() {
     socketStore.emitStopTyping(chatStore.activeConversation._id);
   }
   clearTimeout(typingTimeout);
+}
+
+// File upload
+function onFileSelected(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (file.size > MAX_FILE_SIZE) {
+    const appStore = useAppStore();
+    appStore.showSnackbar("Dosya boyutu 10MB'dan büyük olamaz.", "error");
+    event.target.value = "";
+    return;
+  }
+
+  selectedFile.value = file;
+
+  if (file.type.startsWith("image/")) {
+    filePreviewUrl.value = URL.createObjectURL(file);
+  } else {
+    filePreviewUrl.value = null;
+  }
+
+  event.target.value = "";
+}
+
+function clearSelectedFile() {
+  if (filePreviewUrl.value) {
+    URL.revokeObjectURL(filePreviewUrl.value);
+  }
+  selectedFile.value = null;
+  filePreviewUrl.value = null;
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return "0 B";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
 // Tarih ayracı
@@ -409,4 +523,145 @@ function goToProfile() {
 </script>
 
 <style scoped>
+.empty-chat {
+  background: rgb(var(--v-theme-background));
+}
+
+.empty-chat-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-primary), 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-msgs-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-primary), 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messages-area {
+  padding: 16px 20px;
+  background: rgb(var(--v-theme-background));
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(var(--v-theme-primary), 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(var(--v-theme-accent), 0.02) 0%, transparent 50%);
+}
+
+.date-chip {
+  font-size: 11px !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  opacity: 0.7;
+}
+
+.message-input-area {
+  padding: 12px 16px 14px;
+  background: rgb(var(--v-theme-surface));
+  border-top: 1px solid rgba(var(--v-border-color), 0.06);
+}
+
+.message-input {
+  flex: 1;
+}
+
+.message-input :deep(.v-field) {
+  font-size: 14px;
+}
+
+.attach-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.attach-btn:hover {
+  opacity: 1;
+  transform: rotate(-45deg);
+}
+
+.file-preview .file-thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.file-preview .file-thumb-icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.send-btn {
+  transition: transform 0.2s ease;
+}
+.send-btn:not(:disabled):hover {
+  transform: scale(1.1);
+}
+
+.dialog-card {
+  border: 1px solid rgba(var(--v-border-color), 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.12);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.25);
+}
+
+/* Mobil responsive */
+@media (max-width: 599.98px) {
+  .messages-area {
+    padding: 10px 12px;
+  }
+
+  .message-input-area {
+    padding: 8px 10px 12px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .empty-chat-icon {
+    width: 64px;
+    height: 64px;
+  }
+  .empty-chat-icon .v-icon {
+    font-size: 32px !important;
+  }
+}
+
+/* Tablet responsive */
+@media (min-width: 600px) and (max-width: 959.98px) {
+  .messages-area {
+    padding: 14px 16px;
+  }
+
+  .message-input-area {
+    padding: 10px 14px 12px;
+  }
+}
 </style>

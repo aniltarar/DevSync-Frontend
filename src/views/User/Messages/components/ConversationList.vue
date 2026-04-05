@@ -1,64 +1,68 @@
 <template>
   <div class="conversation-list d-flex flex-column" style="height: 100%">
     <!-- Başlık + Ara -->
-    <div class="pa-4 pb-3">
+    <div class="conv-header">
       <div class="d-flex align-center justify-space-between mb-3">
-        <h3 class="text-h6 font-weight-bold">Mesajlar</h3>
-        <div class="d-flex align-center ga-2">
-          <v-chip size="small" color="primary" variant="tonal" rounded="lg">
-            {{ chatStore.sortedConversations.length }}
-          </v-chip>
-          <v-btn icon variant="text" size="small" @click="emit('close')">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+        <div class="d-flex align-center ga-3">
+          <div class="header-icon-wrap">
+            <v-icon size="20" color="primary">mdi-message-text</v-icon>
+          </div>
+          <div>
+            <h3 class="text-subtitle-1 font-weight-bold" style="line-height: 1.2">Mesajlar</h3>
+            <span class="text-caption text-medium-emphasis">{{ chatStore.sortedConversations.length }} sohbet</span>
+          </div>
         </div>
+        <v-btn icon variant="text" size="small" class="close-btn" @click="emit('close')">
+          <v-icon size="18">mdi-page-layout-sidebar-left</v-icon>
+        </v-btn>
       </div>
 
       <v-text-field
         v-model="searchQuery"
         placeholder="Kullanıcı ara..."
         prepend-inner-icon="mdi-magnify"
-        variant="solo-filled"
+        variant="outlined"
         density="compact"
-        rounded="lg"
+        rounded="pill"
         flat
         hide-details
         clearable
+        class="search-field"
         @update:model-value="onSearch"
       />
     </div>
 
     <!-- Tabs -->
-    <v-tabs v-model="activeTab" density="compact" color="primary" class="px-2 flex-shrink-0" >
-      <v-tab value="active" size="small">
-        <v-icon size="16" class="mr-1">mdi-message-text-outline</v-icon>
-        Sohbetler
-      </v-tab>
-      <v-tab value="archived" size="small" @click="loadArchived">
-        <v-icon size="16" class="mr-1">mdi-archive-outline</v-icon>
-        Arşiv
-      </v-tab>
-    </v-tabs>
-
-    <v-divider class="flex-shrink-0" />
+    <div class="tab-wrapper px-4 pt-1 pb-0 flex-shrink-0">
+      <v-btn-toggle v-model="activeTab" mandatory density="compact" rounded="pill" color="primary" variant="outlined" class="conv-tabs" divided>
+        <v-btn value="active" size="small" class="text-none px-4">
+          <v-icon size="15" class="mr-1">mdi-message-text-outline</v-icon>
+          Sohbetler
+        </v-btn>
+        <v-btn value="archived" size="small" class="text-none px-4" @click="loadArchived">
+          <v-icon size="15" class="mr-1">mdi-archive-outline</v-icon>
+          Arşiv
+        </v-btn>
+      </v-btn-toggle>
+    </div>
 
     <!-- Arama Sonuçları -->
-    <div v-show="isSearching" class="flex-grow-1 overflow-y-auto">
-      <div v-if="authStore.searchStatus === 'loading'" class="d-flex justify-center py-6">
-        <v-progress-circular indeterminate size="28" color="primary" />
+    <div v-show="isSearching" class="flex-grow-1 overflow-y-auto custom-scrollbar">
+      <div v-if="authStore.searchStatus === 'loading'" class="d-flex justify-center py-8">
+        <v-progress-circular indeterminate size="28" width="2" color="primary" />
       </div>
 
-      <v-list v-else-if="authStore.searchResults.length" density="compact" nav class="px-2">
-        <v-list-subheader class="text-uppercase text-caption font-weight-bold">Kullanıcılar</v-list-subheader>
+      <v-list v-else-if="authStore.searchResults.length" density="compact" nav class="px-3 pt-3">
+        <v-list-subheader class="text-uppercase text-caption font-weight-bold letter-spacing-1">Kullanıcılar</v-list-subheader>
         <v-list-item
           v-for="user in filteredSearchResults"
           :key="user._id"
-          rounded="lg"
-          class="mb-1 py-2"
+          rounded="xl"
+          class="mb-1 py-2 search-result-item"
           @click="startConversation(user._id)"
         >
           <template #prepend>
-            <v-avatar size="40" color="primary" variant="tonal">
+            <v-avatar size="38" color="primary" variant="tonal">
               <v-img v-if="user.profile?.avatarUrl" :src="getMediaUrl(user.profile.avatarUrl)" />
               <span v-else class="text-caption font-weight-bold">
                 {{ (user.profile?.name?.[0] || user.username[0]).toUpperCase() }}
@@ -68,41 +72,41 @@
           <v-list-item-title class="text-body-2 font-weight-medium">
             {{ user.profile?.name }} {{ user.profile?.surname }}
           </v-list-item-title>
-          <v-list-item-subtitle class="text-caption">
+          <v-list-item-subtitle class="text-caption text-medium-emphasis">
             @{{ user.username }}
           </v-list-item-subtitle>
         </v-list-item>
       </v-list>
 
-      <div v-else class="text-center py-6 text-medium-emphasis text-body-2">
+      <div v-else class="text-center py-8 text-medium-emphasis text-body-2">
         Kullanıcı bulunamadı
       </div>
     </div>
 
     <!-- Aktif Sohbet Listesi -->
-    <div v-show="!isSearching && activeTab === 'active'" class="flex-grow-1 overflow-y-auto">
-      <div v-if="chatStore.conversationsStatus === 'loading'" class="d-flex justify-center py-6">
-        <v-progress-circular indeterminate size="28" color="primary" />
+    <div v-show="!isSearching && activeTab === 'active'" class="flex-grow-1 overflow-y-auto custom-scrollbar">
+      <div v-if="chatStore.conversationsStatus === 'loading'" class="d-flex justify-center py-8">
+        <v-progress-circular indeterminate size="28" width="2" color="primary" />
       </div>
 
       <v-list
         v-else-if="chatStore.sortedConversations.length"
         density="compact"
         nav
-        class="px-2 py-2"
+        class="px-3 py-2"
       >
         <v-list-item
           v-for="conv in chatStore.sortedConversations"
           :key="conv._id"
-          rounded="lg"
-          class="mb-1 py-3"
+          rounded="xl"
+          class="conv-item mb-1 py-3"
           :active="chatStore.activeConversation?._id === conv._id"
           active-color="primary"
           @click="selectConversation(conv)"
         >
           <template #prepend>
-            <div class="position-relative mr-1">
-              <v-avatar size="44" color="primary" variant="tonal">
+            <div class="position-relative mr-2">
+              <v-avatar size="46" color="primary" variant="tonal">
                 <v-img
                   v-if="getOtherParticipant(conv)?.profile?.avatarUrl"
                   :src="getMediaUrl(getOtherParticipant(conv).profile.avatarUrl)"
@@ -121,54 +125,60 @@
           <v-list-item-title class="text-body-2 font-weight-medium">
             {{ getParticipantName(conv) }}
           </v-list-item-title>
-          <v-list-item-subtitle class="text-caption text-truncate" style="max-width: 180px">
-            {{ conv.lastMessage?.content || "Henüz mesaj yok" }}
+          <v-list-item-subtitle class="text-caption text-truncate conv-subtitle">
+            {{ getLastMessagePreview(conv) }}
           </v-list-item-subtitle>
 
           <template #append>
             <div class="d-flex flex-column align-end ga-1">
-              <span class="text-caption text-medium-emphasis" style="font-size: 11px">
+              <span class="conv-time">
                 {{ formatConvTime(conv.updatedAt) }}
               </span>
-              <v-badge
+              <v-chip
                 v-if="conv.unreadCount > 0"
-                :content="conv.unreadCount"
+                size="x-small"
                 color="primary"
-                inline
-              />
+                variant="flat"
+                class="unread-chip"
+              >
+                {{ conv.unreadCount }}
+              </v-chip>
             </div>
           </template>
         </v-list-item>
       </v-list>
 
-      <div v-else class="d-flex flex-column align-center justify-center py-10 px-4">
-        <v-icon size="48" color="primary" class="mb-3 opacity-50">mdi-message-text-outline</v-icon>
-        <p class="text-body-2 text-medium-emphasis text-center">
-          Henüz sohbetiniz yok.<br />Kullanıcı arayarak yeni sohbet başlatın.
+      <div v-else class="d-flex flex-column align-center justify-center py-12 px-6">
+        <div class="empty-icon-wrap mb-4">
+          <v-icon size="32" color="primary">mdi-message-text-outline</v-icon>
+        </div>
+        <p class="text-body-2 font-weight-medium mb-1">Henüz sohbetiniz yok</p>
+        <p class="text-caption text-medium-emphasis text-center">
+          Kullanıcı arayarak yeni bir sohbet başlatın
         </p>
       </div>
     </div>
 
     <!-- Arşivlenmiş Sohbet Listesi -->
-    <div v-show="!isSearching && activeTab === 'archived'" class="flex-grow-1 overflow-y-auto">
-      <div v-if="chatStore.archivedStatus === 'loading'" class="d-flex justify-center py-6">
-        <v-progress-circular indeterminate size="28" color="primary" />
+    <div v-show="!isSearching && activeTab === 'archived'" class="flex-grow-1 overflow-y-auto custom-scrollbar">
+      <div v-if="chatStore.archivedStatus === 'loading'" class="d-flex justify-center py-8">
+        <v-progress-circular indeterminate size="28" width="2" color="primary" />
       </div>
 
       <v-list
         v-else-if="chatStore.archivedConversations.length"
         density="compact"
         nav
-        class="px-2 py-2"
+        class="px-3 py-2"
       >
         <v-list-item
           v-for="conv in chatStore.archivedConversations"
           :key="conv._id"
-          rounded="lg"
-          class="mb-1 py-3"
+          rounded="xl"
+          class="conv-item mb-1 py-3"
         >
           <template #prepend>
-            <v-avatar size="44" color="primary" variant="tonal" class="mr-1">
+            <v-avatar size="46" color="primary" variant="tonal" class="mr-2">
               <v-img
                 v-if="getOtherParticipant(conv)?.profile?.avatarUrl"
                 :src="getMediaUrl(getOtherParticipant(conv).profile.avatarUrl)"
@@ -182,14 +192,14 @@
           <v-list-item-title class="text-body-2 font-weight-medium">
             {{ getParticipantName(conv) }}
           </v-list-item-title>
-          <v-list-item-subtitle class="text-caption text-truncate" style="max-width: 140px">
-            {{ conv.lastMessage?.content || "Henüz mesaj yok" }}
+          <v-list-item-subtitle class="text-caption text-truncate conv-subtitle">
+            {{ getLastMessagePreview(conv) }}
           </v-list-item-subtitle>
 
           <template #append>
             <v-btn
               icon
-              variant="text"
+              variant="tonal"
               size="small"
               color="primary"
               @click.stop="unarchive(conv._id)"
@@ -201,10 +211,13 @@
         </v-list-item>
       </v-list>
 
-      <div v-else class="d-flex flex-column align-center justify-center py-10 px-4">
-        <v-icon size="48" class="mb-3 opacity-50" color="primary">mdi-archive-outline</v-icon>
-        <p class="text-body-2 text-medium-emphasis text-center">
-          Arşivlenmiş sohbet yok.
+      <div v-else class="d-flex flex-column align-center justify-center py-12 px-6">
+        <div class="empty-icon-wrap mb-4">
+          <v-icon size="32" color="primary">mdi-archive-outline</v-icon>
+        </div>
+        <p class="text-body-2 font-weight-medium mb-1">Arşiv boş</p>
+        <p class="text-caption text-medium-emphasis text-center">
+          Arşivlenmiş sohbet bulunmuyor
         </p>
       </div>
     </div>
@@ -270,6 +283,15 @@ function isOnline(userId) {
   return socketStore.onlineUsers.some((u) => u.userId === userId);
 }
 
+function getLastMessagePreview(conv) {
+  if (!conv.lastMessage?.content) return "Henüz mesaj yok";
+  const senderId = typeof conv.lastMessage.senderId === "object"
+    ? conv.lastMessage.senderId._id
+    : conv.lastMessage.senderId;
+  const prefix = senderId === currentUserId.value ? "Siz: " : "";
+  return prefix + conv.lastMessage.content;
+}
+
 function formatConvTime(isoStr) {
   if (!isoStr) return "";
   const d = new Date(isoStr);
@@ -310,14 +332,124 @@ async function unarchive(conversationId) {
 </script>
 
 <style scoped>
+.conv-header {
+  padding: 20px 16px 12px;
+  background: rgb(var(--v-theme-surface));
+}
+
+.header-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(var(--v-theme-primary), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.close-btn:hover {
+  opacity: 1;
+}
+
+.search-field :deep(.v-field) {
+  font-size: 13px;
+}
+
+.conv-tabs {
+  width: 100%;
+}
+.conv-tabs .v-btn {
+  flex: 1;
+  font-size: 12px !important;
+  letter-spacing: 0.3px;
+}
+
+.tab-wrapper {
+  padding-bottom: 8px;
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1px;
+}
+
+.conv-item {
+  transition: all 0.2s ease;
+}
+
+.conv-subtitle {
+  max-width: 160px;
+  opacity: 0.65;
+}
+
+.conv-time {
+  font-size: 10px;
+  opacity: 0.5;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.unread-chip {
+  font-size: 10px !important;
+  height: 18px !important;
+  min-width: 18px;
+  padding: 0 5px;
+  font-weight: 700;
+}
+
+.search-result-item {
+  transition: all 0.2s ease;
+}
+
+.empty-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-primary), 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .online-dot {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
+  bottom: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
   background: rgb(var(--v-theme-success));
-  border: 2px solid rgb(var(--v-theme-surface));
+  border: 2.5px solid rgb(var(--v-theme-surface));
   border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-success), 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.15);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.3);
+}
+
+/* Mobil responsive */
+@media (max-width: 599.98px) {
+  .conv-header {
+    padding: 16px 12px 10px;
+  }
+
+  .header-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
 }
 </style>

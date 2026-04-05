@@ -25,6 +25,8 @@ export const useChatStore = defineStore("chat", {
       [...state.conversations].sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
       ),
+    totalUnreadCount: (state) =>
+      state.conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0),
   },
 
   actions: {
@@ -160,13 +162,26 @@ export const useChatStore = defineStore("chat", {
       }
     },
 
-    async sendMessage(conversationId, content) {
+    async sendMessage(conversationId, content, file = null) {
       const appStore = useAppStore();
       this.sendingStatus = "sending";
       try {
+        let body;
+        const headers = {};
+
+        if (file) {
+          body = new FormData();
+          body.append("content", content);
+          body.append("file", file);
+          headers["Content-Type"] = "multipart/form-data";
+        } else {
+          body = { content };
+        }
+
         const { data } = await api.post(
           `/chat/conversations/${conversationId}/messages`,
-          { content },
+          body,
+          file ? { headers } : undefined,
         );
         // Socket broadcast'ten gelecek — ama güvenlik için local ekle
         const msg = data.data;

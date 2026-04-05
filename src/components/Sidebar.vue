@@ -64,14 +64,26 @@
         value="messages"
         :to="'/messages'"
         rounded="lg"
-      />
+      >
+        <template v-if="chatStore.totalUnreadCount > 0" #append>
+          <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
+            {{ chatStore.totalUnreadCount > 99 ? '99+' : chatStore.totalUnreadCount }}
+          </v-chip>
+        </template>
+      </v-list-item>
       <v-list-item
         prepend-icon="mdi-bell-outline"
         title="Bildirimler"
         value="notifications"
         :to="'/notifications'"
         rounded="lg"
-      />
+      >
+        <template v-if="notificationStore.unreadCount > 0" #append>
+          <v-chip size="x-small" color="error" variant="flat" class="font-weight-bold">
+            {{ notificationStore.unreadCount > 99 ? '99+' : notificationStore.unreadCount }}
+          </v-chip>
+        </template>
+      </v-list-item>
       <v-list-item
         prepend-icon="mdi-file-document-edit-outline"
         title="Başvurularım"
@@ -178,11 +190,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useThemeStore } from "@/stores/theme";
 import { useAuthStore } from "@/stores/auth";
+import { useChatStore } from "@/stores/chat";
+import { useNotificationStore } from "@/stores/notification";
 
 const isRail = ref(true);
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
+const chatStore = useChatStore();
+const notificationStore = useNotificationStore();
+
+onMounted(() => {
+  notificationStore.fetchUnreadCount();
+  chatStore.fetchConversations();
+});
 </script>

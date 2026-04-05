@@ -3,22 +3,23 @@
     <!-- Sidebar aç butonu -->
     <v-btn
       v-if="!sidebarOpen"
-      class="mr-2"
+      class="mr-2 sidebar-toggle"
       icon
-      variant="text"
+      variant="tonal"
       size="small"
+      color="primary"
       @click="$emit('toggle-sidebar')"
     >
-      <v-icon>mdi-menu</v-icon>
+      <v-icon size="18">{{ mobile ? 'mdi-arrow-left' : 'mdi-menu' }}</v-icon>
     </v-btn>
 
     <!-- Avatar + Online dot -->
     <div class="position-relative mr-3">
       <v-avatar
-        size="40"
+        size="42"
         color="primary"
         variant="tonal"
-        class="cursor-pointer"
+        class="header-avatar"
         @click="$emit('go-profile')"
       >
         <v-img v-if="avatar" :src="avatar" />
@@ -30,38 +31,46 @@
     <!-- Kullanıcı bilgileri -->
     <div class="flex-grow-1 overflow-hidden">
       <div class="d-flex align-center ga-2">
-        <span class="text-body-1 font-weight-medium text-truncate">{{ name }}</span>
-        <span class="text-caption text-medium-emphasis">@{{ username }}</span>
+        <span class="text-body-1 font-weight-semibold text-truncate">{{ name }}</span>
+        <span class="text-caption text-medium-emphasis" style="opacity: 0.6">@{{ username }}</span>
       </div>
-      <p v-if="typingText" class="text-caption text-primary d-flex align-center ga-1 ma-0">
-        <span class="typing-dots"><span /><span /><span /></span>
-        {{ typingText }}
-      </p>
-      <p v-else-if="isOnline" class="text-caption text-success ma-0">Çevrimiçi</p>
-      <p v-else class="text-caption text-medium-emphasis ma-0">
-        {{ lastSeenText }}
-      </p>
+      <div class="status-line">
+        <p v-if="typingText" class="text-caption text-primary d-flex align-center ga-1 ma-0">
+          <span class="typing-dots"><span /><span /><span /></span>
+          {{ typingText }}
+        </p>
+        <p v-else-if="isOnline" class="text-caption ma-0 online-text">
+          <span class="online-pulse" />
+          Çevrimiçi
+        </p>
+        <p v-else class="text-caption text-medium-emphasis ma-0" style="opacity: 0.6">
+          {{ lastSeenText }}
+        </p>
+      </div>
     </div>
 
     <!-- Sağ taraf aksiyonlar -->
     <div class="d-flex align-center ga-1">
-      <v-menu location="bottom end">
+      <v-menu location="bottom end" :offset="4">
         <template #activator="{ props: menuProps }">
-          <v-btn v-bind="menuProps" icon variant="text" size="small">
-            <v-icon>mdi-dots-vertical</v-icon>
+          <v-btn v-bind="menuProps" icon variant="text" size="small" class="menu-btn">
+            <v-icon size="20">mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
-        <v-list density="compact" rounded="lg" min-width="160" elevation="3">
+        <v-list density="compact" rounded="xl" min-width="180" elevation="2" class="py-1">
           <v-list-item
             prepend-icon="mdi-account-outline"
             title="Profili Gör"
+            rounded="lg"
+            class="mx-1"
             @click="$emit('go-profile')"
           />
-          <v-divider />
+          <v-divider class="my-1" />
           <v-list-item
             prepend-icon="mdi-archive-outline"
             title="Sohbeti Arşivle"
-            class="text-error"
+            class="text-error mx-1"
+            rounded="lg"
             @click="$emit('archive')"
           />
         </v-list>
@@ -72,6 +81,9 @@
 
 <script setup>
 import { computed } from "vue";
+import { useDisplay } from "vuetify";
+
+const { mobile } = useDisplay();
 
 const props = defineProps({
   sidebarOpen: { type: Boolean, default: true },
@@ -106,17 +118,69 @@ const lastSeenText = computed(() => {
 <style scoped>
 .chat-header {
   background: rgb(var(--v-theme-surface));
+  border-bottom: 1px solid rgba(var(--v-border-color), 0.06);
+}
+
+.header-avatar {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.header-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(var(--v-theme-primary), 0.15);
+}
+
+.sidebar-toggle {
+  transition: transform 0.2s;
+}
+.sidebar-toggle:hover {
+  transform: scale(1.05);
 }
 
 .online-indicator {
   position: absolute;
   bottom: 1px;
   right: 1px;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   background: rgb(var(--v-theme-success));
-  border: 2px solid rgb(var(--v-theme-surface));
+  border: 2.5px solid rgb(var(--v-theme-surface));
   border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-success), 0.3);
+}
+
+.status-line {
+  min-height: 18px;
+}
+
+.online-text {
+  color: rgb(var(--v-theme-success));
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.online-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(var(--v-theme-success));
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--v-theme-success), 0.5); }
+  70% { box-shadow: 0 0 0 5px rgba(var(--v-theme-success), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--v-theme-success), 0); }
+}
+
+.menu-btn {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.menu-btn:hover {
+  opacity: 1;
 }
 
 .typing-dots {
@@ -146,6 +210,20 @@ const lastSeenText = computed(() => {
   40% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Mobil responsive */
+@media (max-width: 599.98px) {
+  .chat-header {
+    padding-left: 12px;
+    padding-right: 12px;
+    min-height: 56px !important;
+  }
+
+  .header-avatar {
+    width: 36px !important;
+    height: 36px !important;
   }
 }
 </style>

@@ -1,18 +1,20 @@
 import { defineStore } from "pinia";
 import { connectSocket, getSocket } from "@/socket";
 import { useChatStore } from "@/stores/chat";
+import { useNotificationStore } from "@/stores/notification";
 
 export const useSocketStore = defineStore("socket", {
   state: () => ({
     onlineUsers: [],
-    notifications: [],
     connected: false,
   }),
   actions: {
     init() {
       const socket = connectSocket();
+      const notificationStore = useNotificationStore();
 
       socket.on("connect", () => {
+        console.log("[Socket] Bağlantı kuruldu, socket.id:", socket.id);
         this.connected = true;
       });
 
@@ -35,8 +37,18 @@ export const useSocketStore = defineStore("socket", {
         this.onlineUsers = users;
       });
 
-      socket.on("notification", (data) => {
-        this.notifications.unshift(data);
+      // ── Notification Events ──────────────────────
+      socket.on("newNotification", (data) => {
+        console.log("[Socket] newNotification alındı:", data);
+        notificationStore.handleNewNotification(data);
+      });
+
+      socket.on("notificationRead", (data) => {
+        notificationStore.handleNotificationRead(data.notificationId);
+      });
+
+      socket.on("allNotificationsRead", () => {
+        notificationStore.handleAllRead();
       });
 
       // ── Chat Events ──────────────────────────────
@@ -108,7 +120,6 @@ export const useSocketStore = defineStore("socket", {
 
     reset() {
       this.onlineUsers = [];
-      this.notifications = [];
       this.connected = false;
     },
   },
