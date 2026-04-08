@@ -9,7 +9,6 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     status: "idle",
     user: JSON.parse(localStorage.getItem("user")) || null,
-    accessToken: null,
     profileUser: null,
     profileIsBlocked: false,
     profileIsBlockedBy: false,
@@ -36,8 +35,7 @@ export const useAuthStore = defineStore("auth", {
     async refreshToken() {
       try {
         const response = await api.post("/auth/token-refresh");
-        this.accessToken = response.data.accessToken;
-        return this.accessToken;
+        return response.data.accessToken;
       } catch {
         return null;
       }
@@ -65,10 +63,9 @@ export const useAuthStore = defineStore("auth", {
       this.message = "";
       try {
         const response = await api.post("/auth/login", credentials);
-        const { user, message, accessToken } = response.data;
+        const { user, message } = response.data;
 
         this.user = user;
-        this.accessToken = accessToken;
         this.status = "success";
         this.message = message || "Başarıyla giriş yapıldı.";
 
@@ -93,7 +90,6 @@ export const useAuthStore = defineStore("auth", {
       try {
         const response = await api.post("/auth/logout");
         this.user = null;
-        this.accessToken = null;
         localStorage.removeItem("user");
 
         disconnectSocket();

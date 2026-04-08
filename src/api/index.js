@@ -24,7 +24,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+    const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register');
+
+    if (!isAuthRequest && (error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

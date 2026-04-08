@@ -170,7 +170,7 @@
           class="bg-warning text-white"
         >
           <template #prepend>
-            <v-icon color="warning">mdi-shield-crown-outline</v-icon>
+            <v-icon color="white">mdi-shield-crown-outline</v-icon>
           </template>
         </v-list-item>
         <v-list-item

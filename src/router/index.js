@@ -10,7 +10,13 @@ const landingRoute = {
   component: () => import("@/views/Landing/index.vue"),
 };
 
-const routes = [landingRoute, ...authRoutes, ...adminRoutes, ...userRoutes];
+const notFoundRoute = {
+  path: "/:pathMatch(.*)*",
+  name: "NotFound",
+  component: () => import("@/views/NotFound/index.vue"),
+};
+
+const routes = [landingRoute, ...authRoutes, ...adminRoutes, ...userRoutes, notFoundRoute];
 
 const router = createRouter({
   history: createWebHistory(),
