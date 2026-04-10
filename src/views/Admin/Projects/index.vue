@@ -271,6 +271,4 @@ watch(() => [filters.status, filters.category], () => {
   filters.page = 1;
   loadProjects();
 });
-
-onMounted(() => loadProjects());
 </script>

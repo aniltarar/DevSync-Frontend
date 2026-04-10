@@ -5,7 +5,7 @@
     <!-- Arama -->
     <v-card rounded="lg" class="mb-4 pa-4">
       <v-row dense>
-        <v-col cols="12">
+        <v-col cols="12" sm="8">
           <v-text-field
             v-model="filters.search"
             label="Gönderi Ara"
@@ -13,6 +13,16 @@
             density="compact"
             variant="outlined"
             clearable
+            hide-details
+          />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <v-select
+            v-model="filters.sortBy"
+            :items="sortOptions"
+            label="Sıralama"
+            density="compact"
+            variant="outlined"
             hide-details
           />
         </v-col>
@@ -104,8 +114,13 @@ const itemsPerPageOptions = [
   { value: 25, title: "25" },
   { value: 50, title: "50" },
 ];
-const filters = reactive({ page: 1, limit: 10, search: "" });
+const filters = reactive({ page: 1, limit: 10, search: "", sortBy: "newest" });
 let searchTimer = null;
+
+const sortOptions = [
+  { title: "En Yeni", value: "newest" },
+  { title: "En Eski", value: "oldest" },
+];
 const deleteDialog = ref(false);
 const deleting = ref(false);
 const selectedPost = ref(null);
@@ -121,6 +136,7 @@ const headers = [
 const loadPosts = () => {
   const params = { page: filters.page, limit: filters.limit };
   if (filters.search) params.search = filters.search;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
   adminStore.fetchPosts(params);
 };
 
@@ -138,6 +154,11 @@ watch(() => filters.search, () => {
   }, 400);
 });
 
+watch(() => filters.sortBy, () => {
+  filters.page = 1;
+  loadPosts();
+});
+
 const confirmDelete = (post) => {
   selectedPost.value = post;
   deleteDialog.value = true;
@@ -150,6 +171,4 @@ const handleDelete = async () => {
   deleting.value = false;
   if (success) deleteDialog.value = false;
 };
-
-onMounted(() => loadPosts());
 </script>

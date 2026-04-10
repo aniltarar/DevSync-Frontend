@@ -5,7 +5,7 @@
     <!-- Arama ve Filtre -->
     <v-card rounded="lg" class="mb-4 pa-4">
       <v-row dense>
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="3">
           <v-text-field
             v-model="filters.search"
             label="Kullanıcı Ara"
@@ -16,7 +16,7 @@
             hide-details
           />
         </v-col>
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="3">
           <v-select
             v-model="filters.role"
             :items="roleOptions"
@@ -27,7 +27,7 @@
             hide-details
           />
         </v-col>
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="3">
           <v-select
             v-model="filters.status"
             :items="statusOptions"
@@ -35,6 +35,16 @@
             density="compact"
             variant="outlined"
             clearable
+            hide-details
+          />
+        </v-col>
+        <v-col cols="12" sm="3">
+          <v-select
+            v-model="filters.sortBy"
+            :items="sortOptions"
+            label="Sıralama"
+            density="compact"
+            variant="outlined"
             hide-details
           />
         </v-col>
@@ -180,8 +190,13 @@ const itemsPerPageOptions = [
   { value: 25, title: "25" },
   { value: 50, title: "50" },
 ];
-const filters = reactive({ page: 1, limit: 10, search: "", role: null, status: null });
+const filters = reactive({ page: 1, limit: 10, search: "", role: null, status: null, sortBy: "newest" });
 let searchTimer = null;
+
+const sortOptions = [
+  { title: "En Yeni", value: "newest" },
+  { title: "En Eski", value: "oldest" },
+];
 const detailDialog = ref(false);
 const confirmDialog = ref(false);
 const confirmTitle = ref("");
@@ -213,6 +228,7 @@ const loadUsers = () => {
   if (filters.search) params.search = filters.search;
   if (filters.role) params.role = filters.role;
   if (filters.status !== null && filters.status !== undefined) params.status = filters.status;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
   adminStore.fetchUsers(params);
 };
 
@@ -230,7 +246,7 @@ watch(() => filters.search, () => {
   }, 400);
 });
 
-watch(() => [filters.role, filters.status], () => {
+watch(() => [filters.role, filters.status, filters.sortBy], () => {
   filters.page = 1;
   loadUsers();
 });
@@ -266,6 +282,4 @@ const confirmAction = async () => {
   confirmDialog.value = false;
   pendingAction = null;
 };
-
-onMounted(() => loadUsers());
 </script>

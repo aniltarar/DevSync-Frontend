@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Dev Sync - Akış'a hoş geldiniz!.</h1>
+    <h1>Dev Sync - Akış'a hoş geldiniz!</h1>
     <CreatePostCard class="mb-6" />
     <!-- Post listesi -->
     <div class="d-flex flex-column ga-4">

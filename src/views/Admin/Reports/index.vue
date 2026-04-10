@@ -457,6 +457,4 @@ const handleResolve = async () => {
     loadReports();
   }
 };
-
-onMounted(() => loadReports());
 </script>
