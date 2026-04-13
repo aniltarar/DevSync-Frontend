@@ -39,24 +39,40 @@
         class="mt-4"
         color="primary"
         variant="tonal"
-        @click="projectStore.fetchMyProjects()"
+        @click="load(currentPage)"
       >
         Tekrar Dene
       </v-btn>
     </div>
 
     <!-- Liste -->
-    <v-row v-else-if="projectStore.projects.length">
-      <v-col
-        v-for="project in projectStore.projects"
-        :key="project._id"
-        cols="12"
-        sm="6"
-        lg="4"
+    <template v-else-if="projectStore.projects.length">
+      <v-row>
+        <v-col
+          v-for="project in projectStore.projects"
+          :key="project._id"
+          cols="12"
+          sm="6"
+          lg="4"
+        >
+          <ProjectCard :project="project" />
+        </v-col>
+      </v-row>
+
+      <!-- Pagination -->
+      <div
+        v-if="projectStore.myProjectsPagination.totalPages > 1"
+        class="d-flex justify-center mt-6"
       >
-        <ProjectCard :project="project" />
-      </v-col>
-    </v-row>
+        <v-pagination
+          v-model="currentPage"
+          :length="projectStore.myProjectsPagination.totalPages"
+          :total-visible="5"
+          density="comfortable"
+          @update:model-value="load"
+        />
+      </div>
+    </template>
 
     <!-- Boş durum -->
     <div v-else class="text-center py-16">
@@ -81,13 +97,19 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useProjectStore } from "@/stores/project";
 import ProjectCard from "../Components/ProjectCard.vue";
 
 const projectStore = useProjectStore();
+const currentPage = ref(1);
+
+async function load(page = currentPage.value) {
+  currentPage.value = page;
+  await projectStore.fetchMyProjects({ page });
+}
 
 onMounted(() => {
-  projectStore.fetchMyProjects();
+  load(1);
 });
 </script>

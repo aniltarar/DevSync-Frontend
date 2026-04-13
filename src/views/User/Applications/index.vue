@@ -30,7 +30,7 @@
         class="mt-4"
         color="primary"
         variant="tonal"
-        @click="applicationStore.getMyApplications()"
+        @click="load(currentPage)"
       >
         Tekrar Dene
       </v-btn>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- Liste -->
-      <div class="d-flex flex-column ga-3">
+      <div v-else class="d-flex flex-column ga-3">
         <ApplicationCard
           v-for="app in filteredApplications"
           :key="app._id"
@@ -87,6 +87,20 @@
           </template>
         </ApplicationCard>
       </div>
+
+      <!-- Pagination -->
+      <div
+        v-if="applicationStore.myApplicationsPagination.totalPages > 1"
+        class="d-flex justify-center mt-6"
+      >
+        <v-pagination
+          v-model="currentPage"
+          :length="applicationStore.myApplicationsPagination.totalPages"
+          :total-visible="5"
+          density="comfortable"
+          @update:model-value="load"
+        />
+      </div>
     </template>
   </div>
 </template>
@@ -99,6 +113,7 @@ import ApplicationCard from "./components/ApplicationCard.vue";
 const applicationStore = useApplicationStore();
 const activeFilter = ref("all");
 const cancellingId = ref(null);
+const currentPage = ref(1);
 
 const filterOptions = [
   { label: "Tümü", value: "all" },
@@ -119,14 +134,19 @@ function countByStatus(status) {
   return applicationStore.myApplications.filter((a) => a.status === status).length;
 }
 
+async function load(page = currentPage.value) {
+  currentPage.value = page;
+  await applicationStore.getMyApplications({ page });
+}
+
 async function cancelApplication(applicationId) {
   cancellingId.value = applicationId;
   const success = await applicationStore.cancelApplication({ applicationId });
   cancellingId.value = null;
-  if (success) await applicationStore.getMyApplications();
+  if (success) await load();
 }
 
 onMounted(() => {
-  applicationStore.getMyApplications();
+  load(1);
 });
 </script>

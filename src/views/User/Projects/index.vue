@@ -1,4 +1,5 @@
 <template>
+  <div>
   <!-- Başlık -->
   <div class="d-flex align-center mb-4">
     <div>
@@ -159,6 +160,7 @@
     >
       Filtreleri Temizle
     </v-btn>
+  </div>
   </div>
 </template>
 

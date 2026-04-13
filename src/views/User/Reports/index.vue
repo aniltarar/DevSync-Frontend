@@ -1,5 +1,5 @@
 <template>
-  
+  <div>
     <!-- Başlık -->
     <div class="mb-4">
       <h1 class="text-h5 font-weight-bold">Raporlarım</h1>
@@ -116,6 +116,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  </div>
 </template>
 
 <script setup>

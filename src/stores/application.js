@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { useAppStore } from "@/stores/app";
+import { buildQuery } from "@/utils/buildQuery";
 
 export const useApplicationStore = defineStore("application", {
   state: () => ({
@@ -8,6 +9,12 @@ export const useApplicationStore = defineStore("application", {
     myApplications: [],
     applications: [],
     message: "",
+    myApplicationsPagination: {
+      currentPage: 1,
+      totalPages: 1,
+      total: 0,
+      limit: 10,
+    },
   }),
   actions: {
     // Projeye başvuru yapma
@@ -29,13 +36,16 @@ export const useApplicationStore = defineStore("application", {
       }
     },
     // Kullanıcının başvurularını alma
-    async getMyApplications() {
+    async getMyApplications({ page = 1, limit = 10 } = {}) {
       const appStore = useAppStore();
       this.status = "loading";
       this.message = "";
       try {
-        const response = await api.get("/applications/my-applications");
+        const response = await api.get("/applications/my-applications", {
+          params: buildQuery({ page, limit }),
+        });
         this.myApplications = response.data.applications;
+        this.myApplicationsPagination = response.data.pagination;
         this.status = "success";
       } catch (error) {
         this.status = "error";

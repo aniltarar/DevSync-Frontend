@@ -9,6 +9,12 @@ export const useProjectStore = defineStore("project", {
     projects: [],
     project: null,
     message: "",
+    myProjectsPagination: {
+      currentPage: 1,
+      totalPages: 1,
+      total: 0,
+      limit: 10,
+    },
   }),
   actions: {
     async fetchProjects(params = {}) {
@@ -25,13 +31,16 @@ export const useProjectStore = defineStore("project", {
         appStore.apiError(error, "Projeler yüklenemedi.");
       }
     },
-    async fetchMyProjects(){
+    async fetchMyProjects({ page = 1, limit = 10 } = {}) {
       const appStore = useAppStore();
       this.status = "loading";
       this.message = "";
       try {
-        const response = await api.get("/projects/my-projects");
+        const response = await api.get("/projects/my-projects", {
+          params: buildQuery({ page, limit }),
+        });
         this.projects = response.data.data;
+        this.myProjectsPagination = response.data.pagination;
         this.status = "success";
       } catch (error) {
         this.status = "error";

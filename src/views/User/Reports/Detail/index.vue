@@ -72,7 +72,7 @@
           >
             <div class="d-flex align-center ga-1 mb-1">
               <v-icon size="16" color="info">mdi-shield-check-outline</v-icon>
-              <span class="text-body-2 font-weight-medium text-info">Moderatör Notu</span>
+              <span class="text-body-2 font-weight-medium text-info">Yönetici Notu</span>
             </div>
             <p class="text-body-2 mb-0">{{ report.status.adminNote }}</p>
           </div>
