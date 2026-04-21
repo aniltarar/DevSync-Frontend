@@ -12,9 +12,15 @@
             <span class="text-caption text-medium-emphasis">{{ chatStore.sortedConversations.length }} sohbet</span>
           </div>
         </div>
-        <v-btn icon variant="text" size="small" class="close-btn" @click="emit('close')">
-          <v-icon size="18">mdi-page-layout-sidebar-left</v-icon>
-        </v-btn>
+        <div class="d-flex align-center ga-1">
+          <v-btn icon variant="text" size="small" class="close-btn" @click="createGroupDialog = true">
+            <v-icon size="18">mdi-account-multiple-plus</v-icon>
+            <v-tooltip activator="parent" location="top">Grup Oluştur</v-tooltip>
+          </v-btn>
+          <v-btn icon variant="text" size="small" class="close-btn" @click="emit('close')">
+            <v-icon size="18">mdi-page-layout-sidebar-left</v-icon>
+          </v-btn>
+        </div>
       </div>
 
       <v-text-field
@@ -106,17 +112,25 @@
         >
           <template #prepend>
             <div class="position-relative mr-2">
-              <v-avatar size="46" color="primary" variant="tonal">
-                <v-img
-                  v-if="getOtherParticipant(conv)?.profile?.avatarUrl"
-                  :src="getMediaUrl(getOtherParticipant(conv).profile.avatarUrl)"
-                />
-                <span v-else class="text-body-2 font-weight-bold">
-                  {{ getParticipantInitial(conv) }}
-                </span>
+              <v-avatar
+                size="46"
+                :color="conv.conversationType === 'project' ? 'secondary' : 'primary'"
+                variant="tonal"
+              >
+                <v-icon v-if="conv.conversationType === 'project'" size="22">mdi-folder-open</v-icon>
+                <v-icon v-else-if="conv.conversationType === 'group'" size="22">mdi-account-group</v-icon>
+                <template v-else>
+                  <v-img
+                    v-if="getOtherParticipant(conv)?.profile?.avatarUrl"
+                    :src="getMediaUrl(getOtherParticipant(conv).profile.avatarUrl)"
+                  />
+                  <span v-else class="text-body-2 font-weight-bold">
+                    {{ getParticipantInitial(conv) }}
+                  </span>
+                </template>
               </v-avatar>
               <span
-                v-if="isOnline(getOtherParticipant(conv)?._id)"
+                v-if="conv.conversationType === 'direct' && isOnline(getOtherParticipant(conv)?._id)"
                 class="online-dot"
               />
             </div>
@@ -221,11 +235,13 @@
         </p>
       </div>
     </div>
+    <CreateGroupDialog v-model="createGroupDialog" @created="onGroupCreated" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
+import CreateGroupDialog from "./CreateGroupDialog.vue";
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from "@/stores/auth";
 import { useSocketStore } from "@/stores/socket";
@@ -239,6 +255,7 @@ const socketStore = useSocketStore();
 
 const searchQuery = ref("");
 const activeTab = ref("active");
+const createGroupDialog = ref(false);
 let searchTimeout = null;
 let archivedLoaded = false;
 
@@ -328,6 +345,11 @@ function loadArchived() {
 
 async function unarchive(conversationId) {
   await chatStore.unarchiveConversation(conversationId);
+}
+
+function onGroupCreated(conversationId) {
+  activeTab.value = "active";
+  emit("conversation-selected", conversationId);
 }
 </script>
 

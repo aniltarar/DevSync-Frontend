@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { useAppStore } from "@/stores/app";
+import { useAuthStore } from "@/stores/auth";
 
 export const useChatStore = defineStore("chat", {
   state: () => ({
@@ -64,6 +65,108 @@ export const useChatStore = defineStore("chat", {
         return conv;
       } catch (error) {
         appStore.apiError(error, "Sohbet oluşturulamadı.");
+        return null;
+      }
+    },
+
+    async createGroupConversation(title, participantIds) {
+      const appStore = useAppStore();
+      try {
+        const { data } = await api.post("/chat/conversations", {
+          participantIds,
+          conversationType: "group",
+          title,
+        });
+        await this.fetchConversations();
+        return data.conversation;
+      } catch (error) {
+        appStore.apiError(error, "Grup oluşturulamadı.");
+        return null;
+      }
+    },
+
+    async addGroupMember(conversationId, userId) {
+      const appStore = useAppStore();
+      try {
+        const { data } = await api.post(`/chat/conversations/${conversationId}/members`, { userId });
+        if (this.activeConversation?._id === conversationId) {
+          this.activeConversation = data.conversation;
+        }
+        appStore.success("Üye eklendi.");
+        return true;
+      } catch (error) {
+        appStore.apiError(error, "Üye eklenemedi.");
+        return false;
+      }
+    },
+
+    async removeGroupMember(conversationId, targetUserId) {
+      const appStore = useAppStore();
+      try {
+        const { data } = await api.delete(`/chat/conversations/${conversationId}/members/${targetUserId}`);
+        const isSelf = targetUserId === useAuthStore().user?._id;
+        if (isSelf) {
+          this.conversations = this.conversations.filter((c) => c._id !== conversationId);
+          if (this.activeConversation?._id === conversationId) {
+            this.activeConversation = null;
+            this.messages = [];
+          }
+        } else if (this.activeConversation?._id === conversationId) {
+          this.activeConversation.participants = this.activeConversation.participants.filter(
+            (p) => (p._id || p) !== targetUserId,
+          );
+          if (data.newAdminId) this.activeConversation.adminId = data.newAdminId;
+        }
+        return true;
+      } catch (error) {
+        appStore.apiError(error, "İşlem gerçekleştirilemedi.");
+        return false;
+      }
+    },
+
+    handleGroupMemberAdded({ conversation }) {
+      if (this.activeConversation?._id === conversation._id) {
+        this.activeConversation = { ...this.activeConversation, participants: conversation.participants };
+      }
+    },
+
+    handleGroupMemberRemoved({ conversationId, targetUserId, newAdminId }) {
+      const currentUserId = useAuthStore().user?._id;
+      if (targetUserId === currentUserId) {
+        this.conversations = this.conversations.filter((c) => c._id !== conversationId);
+        if (this.activeConversation?._id === conversationId) {
+          this.activeConversation = null;
+          this.messages = [];
+        }
+        return;
+      }
+      if (this.activeConversation?._id === conversationId) {
+        this.activeConversation.participants = this.activeConversation.participants.filter(
+          (p) => (p._id || p) !== targetUserId,
+        );
+        if (newAdminId) this.activeConversation.adminId = newAdminId;
+      }
+    },
+
+    async syncProjectConversations() {
+      try {
+        await api.post("/chat/conversations/sync-projects");
+      } catch {
+        // sessiz hata — sync başarısız olsa da liste yüklenmeye devam eder
+      }
+    },
+
+    async createOrGetProjectConversation(projectId) {
+      const appStore = useAppStore();
+      try {
+        const { data } = await api.post(`/chat/conversations/project/${projectId}`);
+        const conv = data.conversation;
+        if (!this.conversations.find((c) => c._id === conv._id)) {
+          await this.fetchConversations();
+        }
+        return conv;
+      } catch (error) {
+        appStore.apiError(error, "Proje sohbeti oluşturulamadı.");
         return null;
       }
     },

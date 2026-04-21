@@ -54,6 +54,7 @@ onMounted(async () => {
     sidebarOpen.value = true;
   }
 
+  await chatStore.syncProjectConversations();
   await chatStore.fetchConversations();
 
   if (route.query.conversationId) {

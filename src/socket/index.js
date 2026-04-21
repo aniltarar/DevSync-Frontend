@@ -10,11 +10,19 @@ export const getSocket = () => {
 };
 
 export const connectSocket = () => {
-  if (socket?.connected) return socket;
+  if (socket) {
+    // Aynı instance'ı koru — event listener'lar kaybolmasın
+    if (!socket.connected) socket.connect();
+    return socket;
+  }
 
   socket = io(import.meta.env.VITE_API_URL, {
     withCredentials: true,
     transports: ["websocket", "polling"],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10000,
   });
 
   return socket;

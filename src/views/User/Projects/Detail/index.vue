@@ -109,6 +109,42 @@
       </v-card-text>
     </v-card>
 
+    <!-- Proje Ekibi Card (sadece üye varsa göster) -->
+    <v-card v-if="projectMembers.length > 0" rounded="lg" border flat class="mb-4">
+      <v-card-item>
+        <v-card-title class="text-body-1 font-weight-bold">Proje Ekibi</v-card-title>
+        <template #append>
+          <span class="text-caption text-medium-emphasis">{{ projectMembers.length }} üye</span>
+        </template>
+      </v-card-item>
+      <v-divider />
+      <v-card-text class="pa-3">
+        <div class="d-flex flex-wrap ga-3">
+          <div
+            v-for="member in projectMembers"
+            :key="member.user._id"
+            class="d-flex align-center ga-2 pa-2 rounded-lg member-chip"
+          >
+            <v-avatar size="36" color="primary" variant="tonal">
+              <v-img v-if="member.user.profile?.avatarUrl" :src="member.user.profile.avatarUrl" />
+              <span v-else class="text-caption font-weight-bold">
+                {{ (member.user.profile?.name?.[0] || member.user.username?.[0] || '?').toUpperCase() }}
+              </span>
+            </v-avatar>
+            <div>
+              <div class="d-flex align-center ga-1">
+                <span class="text-body-2 font-weight-medium">
+                  {{ member.user.profile?.name }} {{ member.user.profile?.surname }}
+                </span>
+                <v-chip v-if="member.isOwner" size="x-small" color="warning" variant="tonal">Kurucu</v-chip>
+              </div>
+              <span class="text-caption text-medium-emphasis">{{ member.roleName }}</span>
+            </div>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
+
     <!-- Slots Card -->
     <v-card rounded="lg" border flat>
       <v-card-item>
@@ -231,7 +267,7 @@
 
       <v-divider />
 
-      <v-card-actions class="d-flex align-center justify-space-between pa-4 ga-4">
+      <v-card-actions class="d-flex align-center justify-space-between pa-4 ga-4 flex-wrap">
         <v-btn
           v-if="isOwner"
           variant="tonal"
@@ -259,6 +295,17 @@
           :project-title="project.title"
         />
         <v-spacer />
+        <v-btn
+          v-if="canAccessProjectChat"
+          variant="tonal"
+          color="primary"
+          rounded="lg"
+          prepend-icon="mdi-message-text-outline"
+          :loading="projectChatLoading"
+          @click="openProjectChat"
+        >
+          Proje Sohbeti
+        </v-btn>
         <ApplyDialog
           v-if="!isOwner"
           :project-id="project._id"
@@ -272,10 +319,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useProjectStore } from "@/stores/project";
 import { useAuthStore } from "@/stores/auth";
+import { useChatStore } from "@/stores/chat";
 import ApplyDialog from "./components/ApplyDialog.vue";
 import AddSlotDialog from "./components/AddSlotDialog.vue";
 import EditProjectDialog from "./components/EditProjectDialog.vue";
@@ -284,8 +332,12 @@ import DeleteSlotDialog from "./components/DeleteSlotDialog.vue";
 import DeleteProjectDialog from "./components/DeleteProjectDialog.vue";
 
 const route = useRoute();
+const router = useRouter();
 const projectStore = useProjectStore();
 const authStore = useAuthStore();
+const chatStore = useChatStore();
+
+const projectChatLoading = ref(false);
 
 onMounted(() => {
   projectStore.fetchProjectById(route.params.projectId);
@@ -296,6 +348,42 @@ const project = computed(() => projectStore.project);
 const isOwner = computed(
   () => project.value?.ownerId?._id === authStore.user?._id,
 );
+
+const projectMembers = computed(() => {
+  if (!project.value) return [];
+  const members = [];
+  members.push({
+    user: project.value.ownerId,
+    roleName: "Proje Sahibi",
+    isOwner: true,
+  });
+  project.value.slots.forEach((slot) => {
+    slot.filledBy.forEach((user) => {
+      if (!members.find((m) => (m.user._id || m.user) === (user._id || user))) {
+        members.push({ user, roleName: slot.roleName, isOwner: false });
+      }
+    });
+  });
+  return members;
+});
+
+const canAccessProjectChat = computed(() => {
+  if (!project.value) return false;
+  const userId = authStore.user?._id;
+  if (project.value.ownerId?._id === userId) return true;
+  return project.value.slots.some((s) =>
+    s.filledBy.some((id) => (id._id || id) === userId),
+  );
+});
+
+async function openProjectChat() {
+  projectChatLoading.value = true;
+  const conv = await chatStore.createOrGetProjectConversation(project.value._id);
+  projectChatLoading.value = false;
+  if (conv) {
+    router.push({ name: "Messages", query: { conversationId: conv._id } });
+  }
+}
 
 const totalQuota = computed(
   () => project.value?.slots.reduce((sum, s) => sum + s.quota, 0) ?? 0,
@@ -350,3 +438,14 @@ const formattedDate = computed(() =>
     : "",
 );
 </script>
+
+<style scoped>
+.member-chip {
+  background: rgba(var(--v-theme-surface-variant, 128, 128, 128), 0.06);
+  border: 1px solid rgba(var(--v-border-color), 0.08);
+  transition: background 0.2s;
+}
+.member-chip:hover {
+  background: rgba(var(--v-theme-primary), 0.06);
+}
+</style>

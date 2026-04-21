@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { connectSocket, getSocket } from "@/socket";
 import { useChatStore } from "@/stores/chat";
 import { useNotificationStore } from "@/stores/notification";
+import api from "@/api";
 
 export const useSocketStore = defineStore("socket", {
   state: () => ({
@@ -18,8 +19,27 @@ export const useSocketStore = defineStore("socket", {
         this.connected = true;
       });
 
-      socket.on("disconnect", () => {
+      socket.on("disconnect", (reason) => {
         this.connected = false;
+        // Sunucu bağlantıyı kesti (auth hatası vb.) → Socket.IO otomatik
+        // reconnect'i devre dışı bırakır, manuel tetiklememiz gerekir
+        if (reason === "io server disconnect") {
+          setTimeout(() => socket.connect(), 1000);
+        }
+      });
+
+      socket.on("connect_error", async (err) => {
+        const isAuthError =
+          err.message.includes("Token") || err.message.includes("süresi");
+        if (isAuthError) {
+          try {
+            // Access token expire olmuş — refresh et, yeni cookie set edilecek
+            await api.post("/auth/token-refresh");
+            setTimeout(() => socket.connect(), 500);
+          } catch {
+            // Refresh token da geçersiz → axios interceptor login'e yönlendirir
+          }
+        }
       });
 
       socket.on("userOnline", ({ userId, username }) => {
@@ -78,6 +98,14 @@ export const useSocketStore = defineStore("socket", {
 
       socket.on("conversationUpdated", (data) => {
         useChatStore().handleConversationUpdated(data);
+      });
+
+      socket.on("groupMemberAdded", (data) => {
+        useChatStore().handleGroupMemberAdded(data);
+      });
+
+      socket.on("groupMemberRemoved", (data) => {
+        useChatStore().handleGroupMemberRemoved(data);
       });
     },
 

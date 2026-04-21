@@ -17,31 +17,44 @@
     <div class="position-relative mr-3">
       <v-avatar
         size="42"
-        color="primary"
+        :color="conversationType === 'project' ? 'secondary' : 'primary'"
         variant="tonal"
         class="header-avatar"
-        @click="$emit('go-profile')"
+        :style="conversationType !== 'project' ? 'cursor:pointer' : ''"
+        @click="conversationType !== 'project' && $emit('go-profile')"
       >
-        <v-img v-if="avatar" :src="avatar" />
-        <span v-else class="text-body-2 font-weight-bold">{{ initial }}</span>
+        <v-icon v-if="conversationType === 'project'" size="22">mdi-folder-open</v-icon>
+        <v-icon v-else-if="conversationType === 'group'" size="22">mdi-account-group</v-icon>
+        <template v-else>
+          <v-img v-if="avatar" :src="avatar" />
+          <span v-else class="text-body-2 font-weight-bold">{{ initial }}</span>
+        </template>
       </v-avatar>
-      <span v-if="isOnline" class="online-indicator" />
+      <span v-if="conversationType === 'direct' && isOnline" class="online-indicator" />
     </div>
 
-    <!-- Kullanıcı bilgileri -->
+    <!-- Kullanıcı / Proje bilgileri -->
     <div class="flex-grow-1 overflow-hidden">
       <div class="d-flex align-center ga-2">
         <span class="text-body-1 font-weight-semibold text-truncate">{{ name }}</span>
-        <span class="text-caption text-medium-emphasis" style="opacity: 0.6">@{{ username }}</span>
+        <span v-if="conversationType === 'direct'" class="text-caption text-medium-emphasis" style="opacity: 0.6">@{{ username }}</span>
+        <v-chip v-else-if="conversationType === 'project'" size="x-small" color="secondary" variant="tonal" class="text-caption">Proje</v-chip>
+        <v-chip v-else-if="conversationType === 'group'" size="x-small" color="primary" variant="tonal" class="text-caption">Grup</v-chip>
       </div>
       <div class="status-line">
         <p v-if="typingText" class="text-caption text-primary d-flex align-center ga-1 ma-0">
           <span class="typing-dots"><span /><span /><span /></span>
           {{ typingText }}
         </p>
-        <p v-else-if="isOnline" class="text-caption ma-0 online-text">
+        <p v-else-if="conversationType === 'direct' && isOnline" class="text-caption ma-0 online-text">
           <span class="online-pulse" />
           Çevrimiçi
+        </p>
+        <p v-else-if="conversationType === 'project'" class="text-caption text-medium-emphasis ma-0" style="opacity: 0.6">
+          Proje sohbeti
+        </p>
+        <p v-else-if="conversationType === 'group'" class="text-caption text-medium-emphasis ma-0" style="opacity: 0.6">
+          Grup sohbeti
         </p>
         <p v-else class="text-caption text-medium-emphasis ma-0" style="opacity: 0.6">
           {{ lastSeenText }}
@@ -51,6 +64,17 @@
 
     <!-- Sağ taraf aksiyonlar -->
     <div class="d-flex align-center ga-1">
+      <v-btn
+        v-if="conversationType !== 'direct'"
+        icon
+        variant="text"
+        size="small"
+        class="menu-btn"
+        @click="$emit('show-participants')"
+      >
+        <v-icon size="20">mdi-account-group-outline</v-icon>
+        <v-tooltip activator="parent" location="top">Katılımcıları Gör</v-tooltip>
+      </v-btn>
       <v-menu location="bottom end" :offset="4">
         <template #activator="{ props: menuProps }">
           <v-btn v-bind="menuProps" icon variant="text" size="small" class="menu-btn">
@@ -59,13 +83,14 @@
         </template>
         <v-list density="compact" rounded="xl" min-width="180" elevation="2" class="py-1">
           <v-list-item
+            v-if="conversationType === 'direct'"
             prepend-icon="mdi-account-outline"
             title="Profili Gör"
             rounded="lg"
             class="mx-1"
             @click="$emit('go-profile')"
           />
-          <v-divider class="my-1" />
+          <v-divider v-if="conversationType === 'direct'" class="my-1" />
           <v-list-item
             prepend-icon="mdi-archive-outline"
             title="Sohbeti Arşivle"
@@ -87,6 +112,7 @@ const { mobile } = useDisplay();
 
 const props = defineProps({
   sidebarOpen: { type: Boolean, default: true },
+  conversationType: { type: String, default: "direct" },
   name: { type: String, default: "Bilinmeyen" },
   username: { type: String, default: "" },
   avatar: { type: String, default: null },
@@ -96,7 +122,7 @@ const props = defineProps({
   lastSeenAt: { type: String, default: null },
 });
 
-defineEmits(["toggle-sidebar", "go-profile", "archive"]);
+defineEmits(["toggle-sidebar", "go-profile", "archive", "show-participants"]);
 
 const lastSeenText = computed(() => {
   if (!props.lastSeenAt) return "Çevrimdışı";

@@ -26,6 +26,7 @@
       <!-- Header -->
       <ChatHeader
         :sidebar-open="props.sidebarOpen"
+        :conversation-type="chatStore.activeConversation?.conversationType"
         :name="otherUserName"
         :username="otherUser?.username"
         :avatar="otherUserAvatar"
@@ -36,6 +37,7 @@
         @toggle-sidebar="$emit('toggle-sidebar')"
         @go-profile="goToProfile"
         @archive="archiveDialog = true"
+        @show-participants="participantsDialog = true"
       />
 
       <!-- Mesajlar -->
@@ -261,6 +263,14 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- Katılımcılar Dialog -->
+    <ParticipantsDialog
+      v-model="participantsDialog"
+      :participants="chatStore.activeConversation?.participants || []"
+      :admin-id="chatStore.activeConversation?.adminId?.toString?.() ?? chatStore.activeConversation?.adminId"
+      :conversation-id="chatStore.activeConversation?._id"
+      :conversation-type="chatStore.activeConversation?.conversationType"
+    />
   </div>
 </template>
 
@@ -274,6 +284,7 @@ import { useAppStore } from "@/stores/app";
 import { getMediaUrl } from "@/utils/mediaUrl";
 import MessageBubble from "./MessageBubble.vue";
 import ChatHeader from "./ChatHeader.vue";
+import ParticipantsDialog from "./ParticipantsDialog.vue";
 
 const props = defineProps({
   sidebarOpen: { type: Boolean, default: true },
@@ -310,19 +321,29 @@ const deletingMessage = ref(null);
 // Archive
 const archiveDialog = ref(false);
 
+// Participants
+const participantsDialog = ref(false);
+
 // Typing
 let typingTimeout = null;
 let isTyping = false;
 
 const currentUserId = computed(() => authStore.user?._id);
 
+const convType = computed(() => chatStore.activeConversation?.conversationType);
+const isDirectConversation = computed(() => convType.value === "direct");
+
 const otherUser = computed(() => {
   const conv = chatStore.activeConversation;
-  if (!conv) return null;
+  if (!conv || !isDirectConversation.value) return null;
   return conv.participants?.find((p) => (p._id || p) !== currentUserId.value);
 });
 
 const otherUserName = computed(() => {
+  const conv = chatStore.activeConversation;
+  if (!conv) return "Bilinmeyen";
+  if (convType.value === "group") return conv.title || "Grup Sohbeti";
+  if (convType.value === "project") return conv.title || conv.projectId?.title || "Proje Sohbeti";
   const u = otherUser.value;
   if (!u) return "Bilinmeyen";
   return u.profile
@@ -331,15 +352,21 @@ const otherUserName = computed(() => {
 });
 
 const otherUserAvatar = computed(() =>
-  getMediaUrl(otherUser.value?.profile?.avatarUrl),
+  isDirectConversation.value ? getMediaUrl(otherUser.value?.profile?.avatarUrl) : null,
 );
 
-const otherUserInitial = computed(() =>
-  (otherUser.value?.profile?.name?.[0] || otherUser.value?.username?.[0] || "?").toUpperCase(),
-);
+const otherUserInitial = computed(() => {
+  if (!isDirectConversation.value) {
+    const title = chatStore.activeConversation?.title || "G";
+    return title[0].toUpperCase();
+  }
+  return (otherUser.value?.profile?.name?.[0] || otherUser.value?.username?.[0] || "?").toUpperCase();
+});
 
 const isOtherOnline = computed(() =>
-  socketStore.onlineUsers.some((u) => u.userId === otherUser.value?._id),
+  isDirectConversation.value
+    ? socketStore.onlineUsers.some((u) => u.userId === otherUser.value?._id)
+    : false,
 );
 
 const typingText = computed(() => {
