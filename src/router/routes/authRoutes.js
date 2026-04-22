@@ -16,6 +16,16 @@ const authRoutes = [
         name: "Register",
         component: () => import("@/views/Auth/Register/index.vue"),
       },
+      {
+        path: "verify-email-sent",
+        name: "VerifyEmailSent",
+        component: () => import("@/views/Auth/VerifyEmailSent/index.vue"),
+      },
+      {
+        path: "verify-email/:token",
+        name: "VerifyEmail",
+        component: () => import("@/views/Auth/VerifyEmail/index.vue"),
+      },
     ],
   },
 ];

@@ -49,12 +49,37 @@ export const useAuthStore = defineStore("auth", {
         this.status = "success";
         this.message = response.data.message || "Kayıt başarılı!";
         appStore.success(this.message);
-        router.push("/auth/login");
+        router.push({ path: "/auth/verify-email-sent", query: { email: userData.email } });
       } catch (error) {
         this.status = "error";
         this.message =
           error.response?.data?.message || "Kayıt işlemi başarısız.";
         appStore.apiError(error, "Kayıt işlemi başarısız.");
+      }
+    },
+    async verifyEmail(token) {
+      const appStore = useAppStore();
+      this.status = "loading";
+      this.message = "";
+      try {
+        const response = await api.get(`/auth/verify-email/${token}`);
+        this.status = "success";
+        this.message = response.data.message;
+        return true;
+      } catch (error) {
+        this.status = "error";
+        this.message = error.response?.data?.message || "Doğrulama başarısız.";
+        appStore.apiError(error, "Doğrulama başarısız.");
+        return false;
+      }
+    },
+    async resendVerification(email) {
+      const appStore = useAppStore();
+      try {
+        const response = await api.post("/auth/resend-verification", { email });
+        appStore.success(response.data.message || "E-posta gönderildi.");
+      } catch (error) {
+        appStore.apiError(error, "E-posta gönderilemedi.");
       }
     },
     async login(credentials) {
@@ -80,6 +105,11 @@ export const useAuthStore = defineStore("auth", {
         this.status = "error";
         this.message =
           error.response?.data?.message || "Giriş işlemi başarısız.";
+        // E-posta doğrulanmamışsa yönlendir
+        if (error.response?.data?.needsVerification) {
+          router.push({ path: "/auth/verify-email-sent", query: { email: error.response.data.email } });
+          return;
+        }
         appStore.apiError(error, "Giriş işlemi başarısız.");
       }
     },
