@@ -155,13 +155,6 @@
 
       <v-list density="compact" nav class="mb-1" active-color="primary">
         <v-list-item
-          prepend-icon="mdi-cog-outline"
-          title="Ayarlar"
-          value="settings"
-          :to="'/settings'"
-          rounded="lg"
-        />
-        <v-list-item
           v-if="authStore.user?.role === 'admin'"
           title="Admin"
           value="admin"

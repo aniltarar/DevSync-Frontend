@@ -190,9 +190,12 @@
           <v-img
             :src="getMediaUrl(img.url)"
             :aspect-ratio="post.images.length === 1 ? 16 / 9 : 1"
-            cover
+            :cover="post.images.length > 1"
+            :contain="post.images.length === 1"
             rounded="lg"
-            class="border"
+            class="border bg-grey-lighten-4"
+            style="cursor: pointer;"
+            @click.stop="lightboxImg = getMediaUrl(img.url)"
           />
         </v-col>
       </v-row>
@@ -309,6 +312,23 @@
       :content-id="post._id"
     />
 
+    <!-- Görsel lightbox -->
+    <v-dialog v-model="lightboxOpen" max-width="900" scrim="black">
+      <div style="position: relative;" @click.stop>
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          size="small"
+          style="position: absolute; top: 8px; right: 8px; z-index: 1;"
+          @click="lightboxImg = null"
+        />
+        <img
+          :src="lightboxImg"
+          style="display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; border-radius: 12px; object-fit: contain;"
+        />
+      </div>
+    </v-dialog>
+
     <!-- Silme onay dialog -->
     <v-dialog v-model="confirmDelete" max-width="360">
       <v-card rounded="xl">
@@ -374,6 +394,11 @@ const editNewPreviews = ref([]);
 const editFileInput = ref(null);
 const confirmDelete = ref(false);
 const reportDialog = ref(false);
+const lightboxImg = ref(null);
+const lightboxOpen = computed({
+  get: () => !!lightboxImg.value,
+  set: (v) => { if (!v) lightboxImg.value = null; },
+});
 
 const isOwner = computed(
   () => authStore.user?._id === props.post.author?._id

@@ -100,12 +100,6 @@ const userRoutes = [
         meta: childMeta,
         component: () => import("@/views/User/Reports/Detail/index.vue"),
       },
-      {
-        path: "settings",
-        name: "Settings",
-        meta: childMeta,
-        component: () => import("@/views/User/Settings/index.vue"),
-      },
     ],
   },
 ];
