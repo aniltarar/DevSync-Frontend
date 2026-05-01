@@ -2,6 +2,105 @@
 
 Geliştiricileri bir araya getiren işbirliği platformunun modern, gerçek zamanlı kullanıcı arayüzü.
 
+<p align="center">
+  <img src="screenshots/user/landing-page.png" alt="DevSync Landing Page" width="100%" />
+</p>
+
+## Öne Çıkan Özellikler
+
+- **Akış & Sosyal** — Post paylaşımı, beğeni, iç içe yorum sistemi
+- **Proje Keşfi** — Proje arama, detay görüntüleme, slot bazlı başvuru
+- **Anlık Mesajlaşma** — Gerçek zamanlı direkt ve grup sohbetleri
+- **Canlı Bildirimler** — Socket üzerinden anlık bildirim alımı
+- **Online Durum** — Kullanıcı presence takibi ve gösterimi
+- **Tema Desteği** — Light/Dark mod, localStorage ile kalıcılık
+- **Admin Paneli** — Raporlama ve içerik yönetimi
+- **Profil Yönetimi** — Avatar yükleme, beceri ve bilgi düzenleme
+
+---
+
+## Ekran Görüntüleri
+
+### User Panel
+
+#### Giriş & Kayıt
+
+| Ekran | Görüntü |
+|-------|---------|
+| Giriş Ekranı | ![Giriş Ekranı](screenshots/user/giris-ekrani.png) |
+| Kayıt Ol Ekranı | ![Kayıt Ol](screenshots/user/kayit-ol-ekrani.png) |
+| Mail Onaylama Dialog | ![Mail Onaylama](screenshots/user/mail-onaylama-dialog.png) |
+| Maile Gelen Onay | ![Mail Onay](screenshots/user/maile-gelen-onay.png) |
+
+#### Profil & Kullanıcı
+
+| Ekran | Görüntü |
+|-------|---------|
+| Kullanıcı Profili | ![Kullanıcı Profili](screenshots/user/kullanici-profili.png) |
+| Profil Düzenleme - 1 | ![Profil Düzenleme 1](screenshots/user/profil-duzenleme-1.png) |
+| Profil Düzenleme - 2 | ![Profil Düzenleme 2](screenshots/user/profil-duzenleme-2.png) |
+| Profil Düzenleme - 3 | ![Profil Düzenleme 3](screenshots/user/profil-duzenleme-3.png) |
+| Kullanıcı Arama | ![Kullanıcı Arama](screenshots/user/kullanici-arama.png) |
+| Kullanıcı Engelleme | ![Engelleme Modal](screenshots/user/kullanici-engelleme-modal.png) |
+| Engellediğin Kullanıcı Profili | ![Engellediğin](screenshots/user/engelledigin-kullanici-profili.png) |
+| Engellendiğin Kullanıcı Profili | ![Engellendiğin](screenshots/user/engellendigin-kullanici-profili.png) |
+
+#### Gönderi & Yorum
+
+| Ekran | Görüntü |
+|-------|---------|
+| Post Detay | ![Post Detay](screenshots/user/post-detail.png) |
+| Post Raporlama | ![Post Raporlama](screenshots/user/post-reportlama.png) |
+| Raporlarım | ![Reports](screenshots/user/reports.png) |
+
+#### Proje Yönetimi
+
+| Ekran | Görüntü |
+|-------|---------|
+| Tüm Projeleri Listeleme | ![Projeler](screenshots/user/tum-projeleri-listeleme.png) |
+| Proje Oluşturma | ![Proje Oluşturma](screenshots/user/proje-olusturma.png) |
+| Proje Düzenleme | ![Proje Düzenleme](screenshots/user/proje-duzenleme.png) |
+| Slot Ekleme | ![Slot Ekleme](screenshots/user/slot-ekleme.png) |
+| Proje Başvurma - 1 | ![Başvurma 1](screenshots/user/proje-basvurma-1.png) |
+| Proje Başvurma - 2 | ![Başvurma 2](screenshots/user/proje-basvurma-2.png) |
+| Proje Başvurularımı Listeleme | ![Başvurularım](screenshots/user/proje-basvurularimi-listeleme.png) |
+| Proje Sahibi - Başvuran Görüntüleme 1 | ![Başvuran 1](screenshots/user/proje-sahibi-basvuran-goruntuleme-1.png) |
+| Proje Sahibi - Başvuran Görüntüleme 2 | ![Başvuran 2](screenshots/user/proje-sahibi-basvuran-goruntuleme-2.png) |
+| Proje Sahibi - Proje Detay | ![Proje Detay](screenshots/user/proje-sahibi-proje-detay.png) |
+
+#### Mesajlaşma & Sohbet
+
+| Ekran | Görüntü |
+|-------|---------|
+| Canlı Chat | ![Canlı Chat](screenshots/user/canli-chat.png) |
+| Grup Sohbet | ![Grup Sohbet](screenshots/user/grup-sohbet.png) |
+| Grup Sohbeti Oluşturma | ![Grup Oluşturma](screenshots/user/grup-sohbeti-olusturma.png) |
+| Grup Sohbeti Görsel Yollama | ![Görsel Yollama](screenshots/user/grup-sohbeti-gorsel-yollama.png) |
+| Grup Yönetimi | ![Grup Yönetimi](screenshots/user/grup-yonetimi.png) |
+| Proje Sohbeti | ![Proje Sohbeti](screenshots/user/proje-sohbeti.png) |
+
+#### Diğer
+
+| Ekran | Görüntü |
+|-------|---------|
+| Sidebar | ![Sidebar](screenshots/user/sidebar.png) |
+| Bildirim Paneli | ![Bildirimler](screenshots/user/bildirim-paneli.png) |
+| 404 Ekranı | ![404](screenshots/user/404.png) |
+
+### Admin Panel
+
+| Ekran | Görüntü |
+|-------|---------|
+| Dashboard | ![Dashboard](screenshots/admin/dashboard.png) |
+| Kullanıcı Listeleme | ![User List](screenshots/admin/user-list.png) |
+| Gönderi Listeleme | ![Post List](screenshots/admin/gonderi-listeleme.png) |
+| Yorum Listeleme | ![Yorum List](screenshots/admin/yorum-listeleme.png) |
+| Rapor Listesi | ![Report List](screenshots/admin/report-list.png) |
+| Rapor Detay | ![Report Detay](screenshots/admin/report-detay.png) |
+| Rapor Çözümleme | ![Report Çözümleme](screenshots/admin/report-cozumleme.png) |
+
+---
+
 ## Teknolojiler
 
 | Kategori | Teknoloji |
@@ -23,16 +122,21 @@ Geliştiricileri bir araya getiren işbirliği platformunun modern, gerçek zama
 - **Lazy Loading** — Tüm route'larda dynamic import ile code splitting
 - **Real-Time State Sync** — Socket.io ile anlık bildirim, presence ve mesaj senkronizasyonu
 
-## Öne Çıkan Özellikler
+## Kurulum
 
-- **Akış & Sosyal** — Post paylaşımı, beğeni, iç içe yorum sistemi
-- **Proje Keşfi** — Proje arama, detay görüntüleme, slot bazlı başvuru
-- **Anlık Mesajlaşma** — Gerçek zamanlı direkt ve grup sohbetleri
-- **Canlı Bildirimler** — Socket üzerinden anlık bildirim alımı
-- **Online Durum** — Kullanıcı presence takibi ve gösterimi
-- **Tema Desteği** — Light/Dark mod, localStorage ile kalıcılık
-- **Admin Paneli** — Raporlama ve içerik yönetimi
-- **Profil Yönetimi** — Avatar yükleme, beceri ve bilgi düzenleme
+```bash
+# Bağımlılıkları yükle
+npm install
+
+# Geliştirme sunucusunu başlat
+npm run dev
+
+# Production build
+npm run build
+
+# Production build önizleme
+npm run preview
+```
 
 ## Proje Yapısı
 
@@ -52,196 +156,23 @@ src/
 └── main.js
 ```
 
-## Kurulum
-
-```bash
-npm install
-npm run dev       # Geliştirme (Vite HMR)
-npm run build     # Prodüksiyon build
-```
-
-## Kurulum
-
-```bash
-# Bağımlılıkları yükle
-npm install
-
-# Geliştirme sunucusunu başlat
-npm run dev
-
-# Production build
-npm run build
-
-# Production build önizleme
-npm run preview
-```
-
 ## Layout Sistemi
 
 Proje üç ana layout yapısına sahiptir:
 
-### 1. AdminLayout
-Yönetim paneli sayfaları için kullanılır. Sidebar, header ve içerik alanı içerir.
+| Layout | Açıklama |
+|--------|----------|
+| **AdminLayout** | Yönetim paneli — sidebar, header ve içerik alanı |
+| **AuthLayout** | Giriş/kayıt sayfaları — minimal tasarım |
+| **UserLayout** | Son kullanıcı sayfaları — navbar, footer ve içerik alanı |
 
-### 2. AuthLayout
-Giriş, kayıt gibi kimlik doğrulama sayfaları için kullanılır. Minimal tasarım.
-
-### 3. UserLayout
-Son kullanıcı sayfaları için kullanılır. Navbar, footer ve içerik alanı içerir.
-
-## Route Yapısı
-
-Her layout için ayrı route dosyaları bulunur:
-
-- `adminRoutes.js` - Admin paneli rotaları
-- `authRoutes.js` - Kimlik doğrulama rotaları
-- `userRoutes.js` - Kullanıcı sayfası rotaları
-
-### Route Index (router/index.js)
-
-```javascript
-import { createRouter, createWebHistory } from "vue-router";
-import authRoutes from "@/router/routes/authRoutes.js";
-import adminRoutes from "@/router/routes/adminRoutes";
-import userRoutes from "@/router/routes/userRoute.js";
-
-const routes = [...authRoutes, ...adminRoutes, ...userRoutes];
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
-
-router.beforeEach((to, from, next) => {
-  // Route Guard İşlemleri
-  // Örnek: Kimlik doğrulama kontrolü
-  // const isAuthenticated = useAuthStore().isAuthenticated;
-  // if (to.meta.requiresAuth && !isAuthenticated) {
-  //   return next('/auth/login');
-  // }
-  
-  next();
-});
-
-export default router;
-```
-
-### Route Tanımlama Örneği (authRoutes.js)
-
-```javascript
-import AuthLayout from "@/layouts/AuthLayout.vue";
-
-const authRoutes = [
-  {
-    path: "/auth",
-    component: AuthLayout,
-    children: [
-      {
-        path: "login",
-        name: "Login",
-        component: () => import("@/views/Auth/Login/index.vue"),
-      },
-      {
-        path: "register",
-        name: "Register",
-        component: () => import("@/views/Auth/Register/index.vue"),
-      },
-    ],
-  },
-];
-
-export default authRoutes;
-```
-
-### Diğer Route Dosyaları İçin Örnekler
-
-**adminRoutes.js:**
-```javascript
-import AdminLayout from "@/layouts/AdminLayout.vue";
-
-const adminRoutes = [
-  {
-    path: "/admin",
-    component: AdminLayout,
-    meta: { requiresAuth: true, role: 'admin' },
-    children: [
-      {
-        path: "dashboard",
-        name: "AdminDashboard",
-        component: () => import("@/views/Admin/Dashboard/index.vue"),
-      },
-      {
-        path: "users",
-        name: "AdminUsers",
-        component: () => import("@/views/Admin/Users/index.vue"),
-      },
-    ],
-  },
-];
-
-export default adminRoutes;
-```
-
-**userRoutes.js:**
-```javascript
-import UserLayout from "@/layouts/UserLayout.vue";
-
-const userRoutes = [
-  {
-    path: "/",
-    component: UserLayout,
-    children: [
-      {
-        path: "",
-        name: "Home",
-        component: () => import("@/views/User/Home/index.vue"),
-      },
-      {
-        path: "profile",
-        name: "Profile",
-        meta: { requiresAuth: true },
-        component: () => import("@/views/User/Profile/index.vue"),
-      },
-    ],
-  },
-];
-
-export default userRoutes;
-```
+Her layout için ayrı route dosyaları: `adminRoutes.js`, `authRoutes.js`, `userRoutes.js`
 
 ## State Management (Pinia)
 
-Pinia ile merkezi state yönetimi yapılır. Store'lar `src/stores/` klasöründe bulunur.
-
-Örnek kullanım:
+Pinia ile merkezi state yönetimi. Store'lar `src/stores/` klasöründe domain bazlı organize edilmiştir.
 
 ```javascript
 import { useAuthStore } from '@/stores/auth'
-
 const authStore = useAuthStore()
 ```
-
-## Yeni Sayfa Ekleme
-
-1. İlgili layout klasörü altına view oluştur (`views/Admin/`, `views/Auth/`, `views/User/`)
-2. Route dosyasına yeni rotayı ekle (`router/routes/`)
-3. Gerekirse yeni store oluştur (`stores/`)
-
-## Geliştirme İpuçları
-
-- Her view için ayrı klasör oluşturun ve `index.vue` kullanın
-- Tekrar kullanılacak componentleri `components/` klasörüne ekleyin
-- Global stilleri `style.css` dosyasında tanımlayın
-- Layout-specific stiller ilgili layout component'inde tutun
-
-## Teknolojiler
-
-- Vue 3
-- Vite
-- Vue Router
-- Pinia
-- JavaScript
-
----
-
-**Not:** Bu template proje, hızlı Vue.js uygulama geliştirme için hazırlanmıştır. İhtiyaçlarınıza göre özelleştirilebilir.
